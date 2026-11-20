@@ -23,16 +23,65 @@ function loadStamps() {
 
 const clock = (ms) => (ms ? new Date(ms).toTimeString().slice(0, 5) : "");
 
+// The last real sentence an agent printed: drop ANSI, box drawing and TUI chrome.
+const BOX = /[│┃┌┐└┘├┤┬┴┼─━╭╮╰╯▌▐█▰▱▔▁]/g;
+const CHROME = /esc\s|\d+(\.\d+)?K\b|↑|↓|\(\d+%\)|ctrl\+|⏎|\bauto\b|^[~/]|^(build|plan|thought|worked) ·/i;
+
+function lastSaid(text) {
+  return (
+    String(text)
+      .replace(/\u001b\[[0-9;?]*[A-Za-z]/g, "")
+      .split("\n")
+      .map((l) => l.replace(BOX, " ").replace(/\s+/g, " ").trim())
+      .filter((l) => {
+        if (l.length < 14 || CHROME.test(l)) return false;
+        const letters = (l.match(/\p{L}/gu) || []).length;
+        return letters >= 12 && l.split(" ").length >= 3;
+      })
+      .pop() || ""
+  );
+}
+
 export default class OnepieceChat extends View {
   init(_props, cx) {
     this.note = "";
     this.input = InputState.new({ placeholder: "Beri perintah ke kru…" });
     this.input.on("submit", (_e, cx) => this.send(cx));
     this.stamps = loadStamps();
+    this.said = {};
+    this.busy = false;
     this.stamp();
+    this.poll(cx);
     cx.timer.every(2000, (cx) => {
       this.stamp();
       cx.notify();
+    });
+    cx.timer.every(5000, (cx) => this.poll(cx));
+  }
+
+  // Last line each agent printed, read from its terminal (hc read --json).
+  poll(cx) {
+    if (this.busy) return;
+    this.busy = true;
+    cx.spawn(async (cx) => {
+      const rows = [];
+      for (const a of agents()) {
+        try {
+          const r = await hc(["read", a.address, "--lines", "2", "--json"]);
+          rows.push([a.address, lastSaid(JSON.parse(r.stdout).text)]);
+        } catch {
+          rows.push([a.address, ""]);
+        }
+      }
+      this.busy = false;
+      let changed = false;
+      for (const [addr, line] of rows) {
+        if (line && line !== this.said[addr]) {
+          this.said[addr] = line;
+          changed = true;
+        }
+      }
+      if (changed) cx.notify();
     });
   }
 
@@ -143,8 +192,10 @@ export default class OnepieceChat extends View {
                         .child(div().text_size(11).truncate().text_color(t.foreground).child(a.title || a.program?.name || a.address))
                         .child(div().text_size(9).text_color(t.dim).child(a.app || "")),
                     )
+                    .child(div().text_size(9).text_color(t.dim).truncate()
+                      .child(`${LABEL[a.status] ?? a.status} · ${a.tab_name}`))
                     .child(div().text_size(9).text_color(t.muted).truncate()
-                      .child(`${LABEL[a.status] ?? a.status} · ${a.space_name} / ${a.tab_name}`)),
+                      .child(this.said[a.address] || "…")),
                 )
                 .child(div().text_size(9).text_color(t.dim).flex_none().child(clock(this.stamps[`${a.address}:${a.status}`])))
                 .child(div().w(6).h(6).flex_none().rounded(3).bg(tone));

@@ -1,7 +1,26 @@
 // Topbar: Jolly Roger, mission name (space), sail tabs (tabs of the shown space).
 import { View, div, svg } from "gpui-kit";
 import { h_flex } from "gpui-base";
-import { spaces, focused, run, theme, settings } from "herdr";
+import { appHome, focused, readTextFile, run, settings, spaces, theme, writeTextFile } from "herdr";
+
+// Appearance in settings.json decides which theme slot is used, so the switch has
+// to move both: writing only app.theme gets overridden by the appearance slot.
+function toggleTheme(cx) {
+  const path = `${appHome()}/settings.json`;
+  readTextFile(path)
+    .then((text) => {
+      const s = JSON.parse(text ?? "{}");
+      const toDark = String(s.theme ?? "").includes("light");
+      s.theme = toDark ? "onepiece-grandline" : "onepiece-grandline-light";
+      s.appearance = toDark ? "dark" : "light";
+      return writeTextFile(path, JSON.stringify(s, null, 2) + "\n", text ?? null).then(() => s.theme);
+    })
+    .then((name) => {
+      run("app.theme", { name });
+      cx.notify();
+    })
+    .catch(() => {});
+}
 
 export default class OnepieceNav extends View {
   render() {
@@ -103,11 +122,7 @@ export default class OnepieceNav extends View {
           .text_color(t.muted)
           .hover((s) => s.bg(t.hover).text_color(t.foreground))
           .cursor_pointer()
-          .on_click((_e, cx) => {
-            const light = String(settings()?.theme ?? "").includes("light");
-            run("app.theme", { name: light ? "onepiece-grandline" : "onepiece-grandline-light" });
-            cx.notify();
-          })
+          .on_click((_e, cx) => toggleTheme(cx))
           .child(String(settings()?.theme ?? "").includes("light") ? "☀" : "☾"),
       )
       .child(div().text_size(10).text_color(t.dim).child("onepiece · grand line"));

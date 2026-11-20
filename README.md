@@ -45,7 +45,7 @@ Zona yang terpasang:
 | topbar: Jolly Roger, mission, tab kapal | `onepiece-nav` |
 | sidebar 240px: menu + daftar + WANTED/Belly | `onepiece-sidebar` |
 | node graph Luffy → Nami/Zoro/Franky + pil Robin/Usopp (status live) | `onepiece-alur` |
-| 50% kiri: crew chat + input kirim perintah + Den Den Mushi | `onepiece-chat` |
+| 50% kiri: crew chat (kalimat terakhir tiap agent) + input `hc send` + Den Den Mushi | `onepiece-chat` |
 | tombol SET SAIL / ANCHOR di bawah terminal | `onepiece-actions` |
 | panel kanan 300px: integrity, peta, Log Pose, bounty | `onepiece-inspector` |
 
@@ -73,6 +73,8 @@ Balik ke layout lama: `herdr-app do layout.switch --name dev-layout`.
   (`theme.dark` / `theme.light`). `settings.json` adalah default untuk layout tanpa override.
 - Warna ANSI terminal ikut tema; TUI di dalam pane (OpenCode dll.) punya tema sendiri.
 - `~/.config/herdr-app/themes/<nama>.json` = id tema; pakai `app.theme` untuk ganti.
+- `layouts/.state/<layout>.json` menyimpan `theme.{light,dark}` dan override `nodes.*.size`
+  (kalau blok melar, hapus entri `nodes` itu — app menulisnya dari geometri terakhir).
 - `HERDR_APP_HOME=/path ./install-theme.sh` untuk home lain.
 - Klik node kru = fokus pane agent-nya; menu sidebar = Voyages/Crew/Log Pose/Bounty.
 - Belly = 5.000.000 + 500.000/agent selesai + 50.000/terminal hidup (lihat `currency.rewards`),
@@ -80,7 +82,12 @@ Balik ke layout lama: `herdr-app do layout.switch --name dev-layout`.
 - SET SAIL membuka tab shell baru; ANCHOR mengembalikan fokus ke terminal.
 - Crew chat mengirim `hc send <agent> <teks>` ke agent yang sedang fokus; Enter = kirim,
   tiap baris menampilkan jam perubahan status, dan ikon Den Den Mushi = lompat ke kru yang `blocked`.
-- Topbar: `+` = tab baru, `☀/☾` = tukar tema gelap ↔ parchment (tanpa buka Settings).
+- Topbar: `+` = tab baru, `☀/☾` = tukar tema gelap ↔ parchment. Tombol ini menulis
+  `settings.json` (`theme` + `appearance`) lalu `app.theme` — perlu dua-duanya, karena
+  pilihan Appearance yang menentukan slot tema. Kalau kamu ubah Appearance manual di
+  Settings, cukup klik tombol ini sekali lagi supaya sinkron.
+- Crew chat membaca baris terakhir tiap terminal (`hc read --json`) tiap 5 detik, membuang
+  ANSI/box/TUI chrome; baris status di atasnya + jam menunjukkan perubahan status.
 - Ikon: `svg()` = mask satu warna (di-tint tema), `image()` = SVG/PNG penuh warna.
 - Avatar tanpa key: `python3 fetch-avatars.py` (atau `. luffy zoro`) — ambil potret infobox wiki,
   crop 96px, tulis `avatars/index.json`; mod membacanya tiap 15 detik, tanpa file tetap pakai inisial.
