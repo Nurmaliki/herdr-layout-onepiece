@@ -98,3 +98,16 @@ Balik ke layout lama: `herdr-app do layout.switch --name dev-layout`.
   untuk pemakaian pribadi di mesin sendiri; repo hanya berisi skrip pengambilnya.
 - Yang tidak diporting: font Cinzel (tidak terpasang), animasi garis dashed
   (runtime hanya menganimasikan opacity/transform).
+## Cek fungsi (app harus terbuka)
+
+```sh
+./test-fungsi.sh
+```
+
+23 cek terhadap window yang hidup: layout aktif + `errors: []`, enam mod dimuat runtime
+(`herdr-app check`), tema benar-benar terpain (sampel piksel: chrome sidebar, parchment
+inspector, merah SET SAIL — light dan dark), `settings.json` tidak dilawan balik app,
+`layout.switch` pulang-pergi, `tab.new`/`tab.close` (perintah tombol `+`), enam potret
+96x96, dan `hc read --json` (sumber crew chat). Setelan tema kamu dipulihkan di akhir,
+termasuk kalau tes gagal.
+
