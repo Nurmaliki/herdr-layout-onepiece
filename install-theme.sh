@@ -87,6 +87,8 @@ cp "$ROOT/layouts/$LAYOUT.json" "$APP_HOME/layouts/$LAYOUT.json"
 # (a toggle test, a manual edit) Settings would show the wrong variant.
 # Crew personas double as hc templates: `hc run onepiece-nami "rencanakan X"`.
 mkdir -p "$CORE_HOME/templates"
+command -v "${CREW_AGENT:-opencode}" >/dev/null 2>&1 ||
+  echo "note: ${CREW_AGENT:-opencode} not on PATH — presets will fail until it is" >&2
 python3 - "$ROOT/crew-profiles.json" "$CORE_HOME/templates" "${CREW_AGENT:-opencode}" <<'PY'
 import json, os, sys
 src, outdir, command = sys.argv[1:4]

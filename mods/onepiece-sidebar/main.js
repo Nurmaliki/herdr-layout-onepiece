@@ -17,20 +17,22 @@ const MENU = [
 
 const rupiah = (n) => String(Math.round(n)).replace(/\B(?=(\d{3})+(?!\d))/g, ".");
 
-// Ship's purse: base bounty + mission reward per finished agent + subtask per live
-// terminal (see currency.rewards in crew-profiles.json); never shrinks.
+// Ship's purse: base bounty + mission reward per finished agent + subtask per finished
+// terminal (see currency.rewards in crew-profiles.json); never shrinks. v2 counts only
+// completed work — v1 paid 50k for every live shell, which inflated the total.
 const BASE = 5000000;
 const MISSION = 500000;
 const SUBTASK = 50000;
 
 function belly() {
   const done = agents().filter((a) => a.status === "done").length;
-  const base = BASE + done * MISSION + terminals().length * SUBTASK;
+  const subs = terminals().filter((t) => t.status === "done").length;
+  const base = BASE + done * MISSION + subs * SUBTASK;
   try {
     const store = localStorage;
-    const kept = Number(store.getItem("onepiece.belly") || 0);
+    const kept = Number(store.getItem("onepiece.belly.v2") || 0);
     const best = Math.max(base, kept);
-    if (best > kept) store.setItem("onepiece.belly", String(best));
+    if (best > kept) store.setItem("onepiece.belly.v2", String(best));
     return best;
   } catch {
     return base;

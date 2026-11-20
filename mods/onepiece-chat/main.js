@@ -21,7 +21,7 @@ function loadLog() {
       if (prev && prev.a === e.a && prev.txt === e.txt) continue;
       out.push(e);
     }
-    return out;
+    return out.slice(-CAP);
   } catch {
     return [];
   }
@@ -62,43 +62,46 @@ export default class OnepieceChat extends View {
     if (this.busy) return;
     this.busy = true;
     cx.spawn(async (cx) => {
-      const rows = [];
-      for (const a of agents()) {
-        try {
-          const r = await hc(["read", a.address, "--lines", "8", "--json"]);
-          rows.push([a, saidLines(JSON.parse(r.stdout).text)]);
-        } catch {
-          rows.push([a, []]);
-        }
-      }
-      let changed = false;
-      const opening = !this.seeded && this.log.length === 0;
-      for (const [a, lines] of rows) {
-        const known = this.seen[a.address] ?? [];
-        const fresh = lines.filter((l) => !known.includes(l));
-        this.seen[a.address] = [...known, ...lines].slice(-12);
-        // First run opens with what each agent last said, so the panel is never blank.
-        if (opening && lines.length > 0) {
-          this.log.push({ a: a.address, n: a.title || a.program?.name || a.address, txt: lines[lines.length - 1], ts: Date.now() });
-          changed = true;
-          continue;
-        }
-        if (!this.seeded || fresh.length === 0) continue;
-        // Wrapped terminal lines are one sentence, so one bubble per agent per poll.
-        const txt = fresh.join(" ").slice(0, 240);
-        const recent = this.log.filter((e) => e.a === a.address).slice(-3).map((e) => e.txt);
-        if (recent.includes(txt)) continue;
-        this.log.push({ a: a.address, n: a.title || a.program?.name || a.address, txt, ts: Date.now() });
-        changed = true;
-      }
-      this.seeded = true;
-      this.busy = false;
-      if (!changed) return;
-      this.log = this.log.slice(-CAP);
       try {
-        localStorage.setItem(KEY, JSON.stringify(this.log));
-      } catch {}
-      cx.notify();
+        const rows = [];
+        for (const a of agents()) {
+          try {
+            const r = await hc(["read", a.address, "--lines", "8", "--json"]);
+            rows.push([a, saidLines(JSON.parse(r.stdout).text)]);
+          } catch {
+            rows.push([a, []]);
+          }
+        }
+        let changed = false;
+        const opening = !this.seeded && this.log.length === 0;
+        for (const [a, lines] of rows) {
+          const known = this.seen[a.address] ?? [];
+          const fresh = lines.filter((l) => !known.includes(l));
+          this.seen[a.address] = [...known, ...lines].slice(-12);
+          // First run opens with what each agent last said, so the panel is never blank.
+          if (opening && lines.length > 0) {
+            this.log.push({ a: a.address, n: a.title || a.program?.name || a.address, txt: lines[lines.length - 1], ts: Date.now() });
+            changed = true;
+            continue;
+          }
+          if (!this.seeded || fresh.length === 0) continue;
+          // Wrapped terminal lines are one sentence, so one bubble per agent per poll.
+          const txt = fresh.join(" ").slice(0, 240);
+          const recent = this.log.filter((e) => e.a === a.address).slice(-3).map((e) => e.txt);
+          if (recent.includes(txt)) continue;
+          this.log.push({ a: a.address, n: a.title || a.program?.name || a.address, txt, ts: Date.now() });
+          changed = true;
+        }
+        this.seeded = true;
+        if (!changed) return;
+        this.log = this.log.slice(-CAP);
+        try {
+          localStorage.setItem(KEY, JSON.stringify(this.log));
+        } catch {}
+        cx.notify();
+      } finally {
+        this.busy = false;
+      }
     });
   }
 

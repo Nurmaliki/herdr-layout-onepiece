@@ -84,8 +84,10 @@ Balik ke layout lama: `herdr-app do layout.switch --name dev-layout`.
   menghapus state-nya supaya tidak menunjuk tema yang sudah dibuang.
 - `HERDR_APP_HOME=/path ./install-theme.sh` untuk home lain.
 - Klik node kru = fokus pane agent-nya; menu sidebar = Voyages/Crew/Log Pose/Bounty.
-- Belly = 5.000.000 + 500.000/agent selesai + 50.000/terminal hidup (lihat `currency.rewards`),
-  disimpan sebagai nilai tertinggi di `localStorage` mod.
+- Belly = 5.000.000 + 500.000/agent `done` + 50.000/terminal `done` (lihat
+  `currency.rewards`), disimpan sebagai nilai tertinggi di `localStorage`
+  (`onepiece.belly.v2`). Versi v1 menghitung tiap shell hidup, jadi bengkak jadi
+  10,5 jt karena terminal yang cuma nganggur; v2 mulai dari 5,05 jt.
 - SET SAIL membuka tab shell baru; ANCHOR mengembalikan fokus ke terminal.
 - Crew chat mengirim `hc send <agent> <teks>` ke agent yang sedang fokus; Enter = kirim,
   tiap baris menampilkan jam perubahan status, dan ikon Den Den Mushi = lompat ke kru yang `blocked`.
