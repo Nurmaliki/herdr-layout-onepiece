@@ -64,7 +64,8 @@ Balik ke layout lama: `herdr-app do layout.switch --name dev-layout`.
 | `mods/onepiece-*/` | 6 mod UI (nav, sidebar, alur, chat, inspector, actions) + ikon SVG (`jolly.svg`, `compass.svg`, `denden.svg`, `i-*.svg`) |
 | `check.py` | validasi preview: token, id, ARIA, kontras AA |
 | `crew-profiles.json` | 6 kru: prompt panjang, `title`, `status_idle/active`, warna badge, `avatar_prompt`, reward Belly |
-| `make-avatars.py` | avatar kru via API resmi OpenAI Images → `mods/onepiece-alur/avatars/` |
+| `fetch-avatars.py` | avatar kru dari internet (Fandom `onepiece.fandom.com`) → `mods/onepiece-alur/avatars/` |
+| `make-avatars.py` | alternatif: avatar via API OpenAI Images (butuh `OPENAI_IMAGE_KEY`) |
 
 ## Catatan
 
@@ -81,7 +82,10 @@ Balik ke layout lama: `herdr-app do layout.switch --name dev-layout`.
   tiap baris menampilkan jam perubahan status, dan ikon Den Den Mushi = lompat ke kru yang `blocked`.
 - Topbar: `+` = tab baru, `☀/☾` = tukar tema gelap ↔ parchment (tanpa buka Settings).
 - Ikon: `svg()` = mask satu warna (di-tint tema), `image()` = SVG/PNG penuh warna.
-- Avatar: `OPENAI_IMAGE_KEY=sk-... python3 make-avatars.py` (default `https://api.openai.com/v1`,
-  `gpt-image-1`, 1024², dipotong 96px). Tanpa file avatar, node tetap pakai inisial.
+- Avatar tanpa key: `python3 fetch-avatars.py` (atau `. luffy zoro`) — ambil potret infobox wiki,
+  crop 96px, tulis `avatars/index.json`; mod membacanya tiap 15 detik, tanpa file tetap pakai inisial.
+- Avatar resmi API: `OPENAI_IMAGE_KEY=sk-... python3 make-avatars.py` (`api.openai.com`, `gpt-image-1`).
+- Gambar avatar **tidak di-commit** (`.gitignore`): materi berhak cipta Eiichiro Oda/Toei,
+  untuk pemakaian pribadi di mesin sendiri; repo hanya berisi skrip pengambilnya.
 - Yang tidak diporting: font Cinzel (tidak terpasang), animasi garis dashed
   (runtime hanya menganimasikan opacity/transform).

@@ -60,10 +60,18 @@ export default class OnepieceAlur extends View {
   // the node keeps its initial badge.
   init(_props, cx) {
     this.avatars = new Set();
+    this.load(cx);
+    // Portraits can land after the mod mounted (fetch/make script), so re-read.
+    cx.timer.every(15000, (cx) => this.load(cx));
+  }
+
+  load(cx) {
     const manifest = `${appHome()}/mods/onepiece-alur/avatars/index.json`;
     readTextFile(manifest)
       .then((text) => {
-        this.avatars = new Set(JSON.parse(text ?? "{}").ids ?? []);
+        const ids = JSON.parse(text ?? "{}").ids ?? [];
+        if (ids.length === this.avatars.size && ids.every((id) => this.avatars.has(id))) return;
+        this.avatars = new Set(ids);
         cx.notify();
       })
       .catch(() => {});
@@ -71,7 +79,7 @@ export default class OnepieceAlur extends View {
 
   avatar(t, crew, size) {
     const tone = t[crew.tone] ?? t.accent;
-    if (this.avatars.has(crew.name)) {
+    if (this.avatars.has(crew.name.toLowerCase())) {
       return image(avatarPath(crew)).size(size).flex_none().rounded(size / 2);
     }
     return div()
@@ -103,7 +111,7 @@ export default class OnepieceAlur extends View {
       .child(
         h_flex().px(12).h(24).flex_none().gap(8).items_center()
           .child(div().text_size(10).font_semibold().text_color(t.accent).child("ALUR COMMAND CENTER"))
-          .child(div().text_size(9).text_color(t.dim).child("delegasi kru · live")),
+          .child(div().text_size(9).text_color(t.dim).child("delegasi kru · live"))
       )
       .child(
         h_flex()
