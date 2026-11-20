@@ -116,6 +116,12 @@ else
   echo "SKIP  potret belum diunduh di mesin ini — python3 fetch-avatars.py lalu ulangi"
 fi
 
+echo "== preset kru (hc templates)"
+tpl="$(hc templates --json 2>/dev/null | python3 -c "import json,sys;print(len([t for t in json.load(sys.stdin)['templates'] if t['name'].startswith('onepiece-')]))" 2>/dev/null || echo 0)"
+check "6 preset onepiece-* terdaftar" "${tpl:-0}" "6"
+cmd="$(hc templates --json 2>/dev/null | python3 -c "import json,sys;print(next((t['command'] for t in json.load(sys.stdin)['templates'] if t['name']=='onepiece-nami'),''))" 2>/dev/null || echo)"
+[ -n "$cmd" ] && pass "preset punya command ($cmd)" || fail "preset tanpa command"
+
 echo "== chat feed (hc read --json, sama seperti mod)"
 addr="$(echo "$status" | field 'd.get("agent") or ""')"
 [ -n "$addr" ] || addr="$(hc ls --json 2>/dev/null | field 'd[0]["terminal"] if d else ""')"

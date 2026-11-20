@@ -1,45 +1,47 @@
-// Crew chat: live crew roster as a message feed, input sends to the focused agent.
+// Crew chat: a reconstructed multi-agent stream (bubbles) plus an input that sends
+// the focused agent a command. The runtime cannot read another agent's message log,
+// so each entry is a line the agent printed, stamped when we first saw it.
 import { View, div, image } from "gpui-kit";
 import { v_flex, h_flex, InputState, Input } from "gpui-base";
 import { agents, focused, hc, run, theme } from "herdr";
 
-const LABEL = {
-  working: "sedang bekerja",
-  blocked: "minta perhatian",
-  done: "selesai",
-  idle: "siaga",
-};
-
-const initials = (a) => (a.title || a.program?.name || "??").replace(/[^\p{L}\p{N} ]/gu, "").trim().slice(0, 2).toUpperCase();
-
-function loadStamps() {
-  try {
-    const raw = JSON.parse(localStorage.getItem("onepiece.chat.stamps") || "{}");
-    return raw && typeof raw === "object" ? raw : {};
-  } catch {
-    return {};
-  }
-}
+const CAP = 40;
+const KEY = "onepiece.chat.log";
 
 const clock = (ms) => (ms ? new Date(ms).toTimeString().slice(0, 5) : "");
 
-// The last real sentence an agent printed: drop ANSI, box drawing and TUI chrome.
-const BOX = /[│┃┌┐└┘├┤┬┴┼─━╭╮╰╯▌▐█▰▱▔▁]/g;
-const CHROME = /esc\s|\d+(\.\d+)?K\b|↑|↓|\(\d+%\)|ctrl\+|⏎|\bauto\b|^[~/]|^(build|plan|thought|worked) ·/i;
+function loadLog() {
+  try {
+    const raw = JSON.parse(localStorage.getItem(KEY) || "[]");
+    if (!Array.isArray(raw)) return [];
+    const out = [];
+    for (const e of raw) {
+      if (!e || !e.a || !e.txt) continue;
+      const prev = out[out.length - 1];
+      if (prev && prev.a === e.a && prev.txt === e.txt) continue;
+      out.push(e);
+    }
+    return out;
+  } catch {
+    return [];
+  }
+}
 
-function lastSaid(text) {
-  return (
-    String(text)
-      .replace(/\u001b\[[0-9;?]*[A-Za-z]/g, "")
-      .split("\n")
-      .map((l) => l.replace(BOX, " ").replace(/\s+/g, " ").trim())
-      .filter((l) => {
-        if (l.length < 14 || CHROME.test(l)) return false;
-        const letters = (l.match(/\p{L}/gu) || []).length;
-        return letters >= 12 && l.split(" ").length >= 3;
-      })
-      .pop() || ""
-  );
+// ANSI, box drawing and TUI chrome all lie about being a sentence.
+const BOX = /[│┃┌┐└┘├┤┬┴┼─━╭╮╰╯▌▐█▰▱▔▁]/g;
+const CHROME = /esc\s|\d+(\.\d+)?K\b|↑|↓|\(\d+%\)|ctrl\+|⏎|\bauto\b|^[~/]|^(build|plan|thought|worked) ·|\(\d+ earlier lines?\)/i;
+
+function saidLines(text) {
+  return String(text)
+    .replace(/\u001b\[[0-9;?]*[A-Za-z]/g, "")
+    .split("\n")
+    .map((l) => l.replace(BOX, " ").replace(/\s+/g, " ").trim())
+    .filter((l) => {
+      if (l.length < 14 || CHROME.test(l)) return false;
+      const letters = (l.match(/\p{L}/gu) || []).length;
+      return letters >= 12 && l.split(" ").length >= 3;
+    })
+    .slice(-4);
 }
 
 export default class OnepieceChat extends View {
@@ -47,19 +49,15 @@ export default class OnepieceChat extends View {
     this.note = "";
     this.input = InputState.new({ placeholder: "Beri perintah ke kru…" });
     this.input.on("submit", (_e, cx) => this.send(cx));
-    this.stamps = loadStamps();
-    this.said = {};
+    this.log = loadLog();
+    this.seen = {};
+    this.seeded = false;
     this.busy = false;
-    this.stamp();
     this.poll(cx);
-    cx.timer.every(2000, (cx) => {
-      this.stamp();
-      cx.notify();
-    });
     cx.timer.every(5000, (cx) => this.poll(cx));
   }
 
-  // Last line each agent printed, read from its terminal (hc read --json).
+  // Read each agent's screen and append the sentences we have not seen before.
   poll(cx) {
     if (this.busy) return;
     this.busy = true;
@@ -67,39 +65,45 @@ export default class OnepieceChat extends View {
       const rows = [];
       for (const a of agents()) {
         try {
-          const r = await hc(["read", a.address, "--lines", "2", "--json"]);
-          rows.push([a.address, lastSaid(JSON.parse(r.stdout).text)]);
+          const r = await hc(["read", a.address, "--lines", "8", "--json"]);
+          rows.push([a, saidLines(JSON.parse(r.stdout).text)]);
         } catch {
-          rows.push([a.address, ""]);
+          rows.push([a, []]);
         }
       }
-      this.busy = false;
       let changed = false;
-      for (const [addr, line] of rows) {
-        if (line && line !== this.said[addr]) {
-          this.said[addr] = line;
+      const opening = !this.seeded && this.log.length === 0;
+      for (const [a, lines] of rows) {
+        const known = this.seen[a.address] ?? [];
+        const fresh = lines.filter((l) => !known.includes(l));
+        this.seen[a.address] = [...known, ...lines].slice(-12);
+        // First run opens with what each agent last said, so the panel is never blank.
+        if (opening && lines.length > 0) {
+          this.log.push({ a: a.address, n: a.title || a.program?.name || a.address, txt: lines[lines.length - 1], ts: Date.now() });
           changed = true;
+          continue;
         }
+        if (!this.seeded || fresh.length === 0) continue;
+        // Wrapped terminal lines are one sentence, so one bubble per agent per poll.
+        const txt = fresh.join(" ").slice(0, 240);
+        const recent = this.log.filter((e) => e.a === a.address).slice(-3).map((e) => e.txt);
+        if (recent.includes(txt)) continue;
+        this.log.push({ a: a.address, n: a.title || a.program?.name || a.address, txt, ts: Date.now() });
+        changed = true;
       }
-      if (changed) cx.notify();
+      this.seeded = true;
+      this.busy = false;
+      if (!changed) return;
+      this.log = this.log.slice(-CAP);
+      try {
+        localStorage.setItem(KEY, JSON.stringify(this.log));
+      } catch {}
+      cx.notify();
     });
   }
 
-  // When each (agent, status) pair was first seen, so the feed can show a time.
-  stamp() {
-    const now = Date.now();
-    const next = {};
-    for (const a of agents()) {
-      const key = `${a.address}:${a.status}`;
-      next[key] = this.stamps[key] ?? now;
-    }
-    const before = JSON.stringify(this.stamps);
-    this.stamps = next;
-    if (JSON.stringify(next) !== before) {
-      try {
-        localStorage.setItem("onepiece.chat.stamps", JSON.stringify(next));
-      } catch {}
-    }
+  paneOf(addr) {
+    return agents().find((a) => a.address === addr)?.pane;
   }
 
   send(cx) {
@@ -129,6 +133,9 @@ export default class OnepieceChat extends View {
     const t = theme();
     const list = [...agents()].sort((a, b) => b.seq - a.seq);
     const blocked = list.filter((a) => a.status === "blocked").length;
+    // Newest first: the runtime owns the scroll position, so the newest bubble has
+    // to sit at the top to stay readable.
+    const feed = [...this.log].reverse();
     return v_flex()
       .size_full()
       .min_h(0)
@@ -139,65 +146,72 @@ export default class OnepieceChat extends View {
       .child(
         h_flex().px(10).h(28).flex_none().gap(8).items_center()
           .child(div().text_size(10).font_semibold().text_color(t.accent).child("CREW CHAT"))
-          .child(div().text_size(9).text_color(t.dim).child(`${list.length} kru`)),
+          .child(div().text_size(9).text_color(t.dim).child(`${list.length} kru · ${this.log.length} pesan · terbaru di atas`)),
       )
       .child(
         v_flex()
           .flex_1()
           .min_h(0)
           .px(8)
-          .gap(4)
+          .py(4)
+          .gap(6)
           .overflow_y_scrollbar()
-          .when(list.length === 0, (el) =>
-            el.child(div().p(8).text_size(10).text_color(t.dim).child("belum ada kru aktif")),
+          .when(feed.length === 0, (el) =>
+            el.child(div().p(8).text_size(10).text_color(t.dim).child("belum ada pesan — kru muncul di sini begitu mereka bicara")),
           )
           .children(
-            list.map((a) => {
-              const tone = t[a.status] ?? t.unknown;
+            feed.map((e, i) => {
+              const live = list.find((a) => a.address === e.a);
+              const tone = t[live?.status] ?? t.unknown;
               return h_flex()
-                .id(`chat-${a.address}`)
-                .gap(8)
-                .px(6)
-                .py(5)
+                .id(`msg-${e.ts}-${i}`)
+                .gap(6)
+                .items_start()
                 .flex_none()
-                .rounded(8)
-                .hover((s) => s.bg(t.hover))
                 .cursor_pointer()
                 .on_click((_e, cx) => {
-                  if (a.pane) run("pane.focus", { pane: a.pane });
+                  const pane = this.paneOf(e.a);
+                  if (pane) run("pane.focus", { pane });
                   cx.notify();
                 })
                 .child(
                   div()
-                    .w(24)
-                    .h(24)
+                    .w(18)
+                    .h(18)
                     .flex_none()
-                    .rounded(12)
+                    .mt(2)
+                    .rounded(9)
                     .bg(t.raised)
                     .border(1)
                     .border_color(tone)
                     .flex()
                     .items_center()
                     .justify_center()
-                    .text_size(9)
+                    .text_size(7)
                     .font_semibold()
                     .text_color(tone)
-                    .child(initials(a)),
+                    .child((e.n || "??").replace(/[^\p{L}\p{N} ]/gu, "").trim().slice(0, 2).toUpperCase()),
                 )
                 .child(
-                  v_flex().min_w(0).flex_1().gap(1)
+                  v_flex().flex_1().min_w(0).gap(2)
                     .child(
-                      h_flex().gap(6).items_center()
-                        .child(div().text_size(11).truncate().text_color(t.foreground).child(a.title || a.program?.name || a.address))
-                        .child(div().text_size(9).text_color(t.dim).child(a.app || "")),
+                      h_flex().gap(5).items_center()
+                        .child(div().text_size(9).font_semibold().text_color(tone).truncate().child(e.n || e.a))
+                        .child(div().text_size(8).text_color(t.dim).child(clock(e.ts))),
                     )
-                    .child(div().text_size(9).text_color(t.dim).truncate()
-                      .child(`${LABEL[a.status] ?? a.status} · ${a.tab_name}`))
-                    .child(div().text_size(9).text_color(t.muted).truncate()
-                      .child(this.said[a.address] || "…")),
-                )
-                .child(div().text_size(9).text_color(t.dim).flex_none().child(clock(this.stamps[`${a.address}:${a.status}`])))
-                .child(div().w(6).h(6).flex_none().rounded(3).bg(tone));
+                    .child(
+                      div()
+                        .px(8)
+                        .py(5)
+                        .rounded(8)
+                        .bg(t.raised)
+                        .border(1)
+                        .border_color(t.border)
+                        .text_size(10)
+                        .text_color(t.foreground)
+                        .child(e.txt),
+                    ),
+                );
             }),
           ),
       )

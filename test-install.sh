@@ -16,6 +16,7 @@ H="$T/light"; mkdir -p "$H"
 printf '{\n  "zoom": 1,\n  "appearance": "light",\n  "theme": "graphite"\n}\n' > "$H/settings.json"
 cp "$H/settings.json" "$T/orig.json"
 export HERDR_APP_HOME="$H"
+export HERDR_CORE_HOME="$T/core"
 
 run --dry-run
 cmp -s "$H/settings.json" "$T/orig.json" || { echo "FAIL: dry-run touched settings"; exit 1; }
@@ -32,6 +33,8 @@ for m in onepiece-nav onepiece-sidebar onepiece-alur onepiece-inspector onepiece
 done
 cmp -s "$H/mods/onepiece-sidebar/jolly.svg" "$ROOT/mods/onepiece-sidebar/jolly.svg" || { echo "FAIL: mod assets not copied"; exit 1; }
 cmp -s "$H/layouts/onepiece-grandline.json" "$ROOT/layouts/onepiece-grandline.json" || { echo "FAIL: layout not copied"; exit 1; }
+[ "$(ls "$T/core/templates"/onepiece-*.md 2>/dev/null | wc -l | tr -d ' ')" = 6 ] || { echo "FAIL: crew templates not installed"; exit 1; }
+grep -q '^command: ' "$T/core/templates/onepiece-nami.md" || { echo "FAIL: template frontmatter incomplete"; exit 1; }
 
 run
 grep -q "already installed" "$T/out" || { echo "FAIL: second run not a no-op"; exit 1; }
@@ -41,6 +44,7 @@ run --uninstall
 cmp -s "$H/settings.json" "$T/orig.json" || { echo "FAIL: uninstall did not restore settings"; exit 1; }
 [ ! -e "$H/themes/onepiece-grandline.json" ] && [ ! -e "$H/themes/onepiece-grandline-light.json" ] || { echo "FAIL: uninstall left themes"; exit 1; }
 [ ! -e "$H/mods/onepiece-nav" ] && [ ! -e "$H/layouts/onepiece-grandline.json" ] || { echo "FAIL: uninstall left mods/layout"; exit 1; }
+[ ! -e "$T/core/templates/onepiece-nami.md" ] || { echo "FAIL: uninstall left crew templates"; exit 1; }
 
 # --- dark appearance --------------------------------------------------------
 D="$T/dark"; mkdir -p "$D"

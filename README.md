@@ -45,7 +45,7 @@ Zona yang terpasang:
 | topbar: Jolly Roger, mission, tab kapal | `onepiece-nav` |
 | sidebar 240px: menu + daftar + WANTED/Belly | `onepiece-sidebar` |
 | node graph Luffy → Nami/Zoro/Franky + pil Robin/Usopp (status live) | `onepiece-alur` |
-| 50% kiri: crew chat (kalimat terakhir tiap agent) + input `hc send` + Den Den Mushi | `onepiece-chat` |
+| 50% kiri: crew chat bubble (multi-agen, terbaru di atas) + input `hc send` + Den Den Mushi | `onepiece-chat` |
 | tombol SET SAIL / ANCHOR di bawah terminal | `onepiece-actions` |
 | panel kanan 300px: integrity, peta, Log Pose, bounty | `onepiece-inspector` |
 
@@ -93,11 +93,19 @@ Balik ke layout lama: `herdr-app do layout.switch --name dev-layout`.
   `settings.json` (`theme` + `appearance`) lalu `app.theme` — perlu dua-duanya, karena
   pilihan Appearance yang menentukan slot tema. Kalau kamu ubah Appearance manual di
   Settings, cukup klik tombol ini sekali lagi supaya sinkron.
-- Crew chat membaca baris terakhir tiap terminal (`hc read --json`) tiap 5 detik, membuang
-  ANSI/box/TUI chrome; baris status di atasnya + jam menunjukkan perubahan status.
+- Crew chat = stream bubble per agen: tiap 5 detik membaca `hc read <agent> --lines 8 --json`,
+  membuang ANSI/box/TUI chrome, menggabungkan baris wrap jadi satu bubble, dan menyimpan
+  40 pesan terakhir di `localStorage` (`onepiece.chat.log`). Urutannya **terbaru di atas**
+  karena runtime memegang posisi scroll sendiri. Jam = saat bubble pertama terlihat, bukan
+  waktu asli pesan. Klik bubble = fokus pane agen itu.
 - Ikon: `svg()` = mask satu warna (di-tint tema), `image()` = SVG/PNG penuh warna.
 - Avatar tanpa key: `python3 fetch-avatars.py` (atau `. luffy zoro`) — ambil potret infobox wiki,
   crop 96px, tulis `avatars/index.json`; mod membacanya tiap 15 detik, tanpa file tetap pakai inisial.
+- Persona kru juga dipasang sebagai template `hc` di
+  `~/.config/herdr-core/templates/onepiece-<kru>.md` (frontmatter `name`/`description`/
+  `command`, body = `system_prompt`): `hc run --bg --name usopp onepiece-usopp "uji modul X"`.
+  Agent-nya `opencode`; ganti dengan `CREW_AGENT=pi ./install-theme.sh`. Sudah diuji nyata —
+  agent menerima persona + task sebagai pesan pertama.
 - Avatar resmi API: `OPENAI_IMAGE_KEY=sk-... python3 make-avatars.py` (`api.openai.com`, `gpt-image-1`).
 - Gambar avatar **tidak di-commit** (`.gitignore`): materi berhak cipta Eiichiro Oda/Toei,
   untuk pemakaian pribadi di mesin sendiri; repo hanya berisi skrip pengambilnya.
@@ -120,10 +128,10 @@ Balik ke layout lama: `herdr-app do layout.switch --name dev-layout`.
 ./test-fungsi.sh
 ```
 
-23 cek terhadap window yang hidup: layout aktif + `errors: []`, enam mod dimuat runtime
+25 cek terhadap window yang hidup: layout aktif + `errors: []`, enam mod dimuat runtime
 (`herdr-app check`), tema benar-benar terpain (sampel piksel: chrome sidebar, parchment
 inspector, merah SET SAIL — light dan dark), `settings.json` tidak dilawan balik app,
 `layout.switch` pulang-pergi, `tab.new`/`tab.close` (perintah tombol `+`), enam potret
-96x96, dan `hc read --json` (sumber crew chat). Setelan tema kamu dipulihkan di akhir,
+96x96, dan `hc read --json` (sumber crew chat), dan enam template kru terdaftar di `hc templates`. Setelan tema kamu dipulihkan di akhir,
 termasuk kalau tes gagal.
 
