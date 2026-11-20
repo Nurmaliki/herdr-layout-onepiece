@@ -75,6 +75,8 @@ Balik ke layout lama: `herdr-app do layout.switch --name dev-layout`.
 - `~/.config/herdr-app/themes/<nama>.json` = id tema; pakai `app.theme` untuk ganti.
 - `layouts/.state/<layout>.json` menyimpan `theme.{light,dark}` dan override `nodes.*.size`
   (kalau blok melar, hapus entri `nodes` itu — app menulisnya dari geometri terakhir).
+  `./install-theme.sh` menormalkan `theme` ke pasangan yang benar; `--uninstall` ikut
+  menghapus state-nya supaya tidak menunjuk tema yang sudah dibuang.
 - `HERDR_APP_HOME=/path ./install-theme.sh` untuk home lain.
 - Klik node kru = fokus pane agent-nya; menu sidebar = Voyages/Crew/Log Pose/Bounty.
 - Belly = 5.000.000 + 500.000/agent selesai + 50.000/terminal hidup (lihat `currency.rewards`),

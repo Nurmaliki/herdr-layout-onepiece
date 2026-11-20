@@ -89,14 +89,13 @@ export default class OnepieceChat extends View {
   stamp() {
     const now = Date.now();
     const next = {};
-    let dirty = false;
     for (const a of agents()) {
       const key = `${a.address}:${a.status}`;
       next[key] = this.stamps[key] ?? now;
-      if (!this.stamps[key]) dirty = true;
     }
-    if (dirty || Object.keys(next).length !== Object.keys(this.stamps).length) {
-      this.stamps = next;
+    const before = JSON.stringify(this.stamps);
+    this.stamps = next;
+    if (JSON.stringify(next) !== before) {
       try {
         localStorage.setItem("onepiece.chat.stamps", JSON.stringify(next));
       } catch {}

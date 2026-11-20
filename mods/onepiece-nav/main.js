@@ -23,6 +23,16 @@ function toggleTheme(cx) {
 }
 
 export default class OnepieceNav extends View {
+  init(_props, cx) {
+    let seen = String(settings()?.theme ?? "");
+    cx.timer.every(1000, (cx) => {
+      const now = String(settings()?.theme ?? "");
+      if (now === seen) return;
+      seen = now;
+      cx.notify();
+    });
+  }
+
   render() {
     const t = theme();
     const f = focused();

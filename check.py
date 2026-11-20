@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """Smoke-check the Grand Line theme: tokens resolve, ARIA targets exist, IDs unique."""
-import json, re, sys
+import json, os, re, sys
 from html.parser import HTMLParser
 from pathlib import Path
 
@@ -94,5 +94,31 @@ for name, (fg, bg) in PAIRS.items():
     r = ratio(fg, bg)
     assert r >= 4.5, f"contrast {name} = {r:.2f} < 4.5 (WCAG AA)"
 
-print(f"OK  tokens={len(defined)}  ids={len(doc.ids)}  symbols={len(symbols)}  crew={len(crew)}  contrast>=AA")
+layout = json.loads((ROOT / "layouts/onepiece-grandline.json").read_text())
+mod_dirs = {d.name for d in (ROOT / "mods").iterdir() if d.is_dir()}
+for m in mod_dirs:
+    assert (ROOT / "mods" / m / "main.js").exists(), f"{m}: missing main.js"
+    assert (ROOT / "mods" / m / "mod.json").exists(), f"{m}: missing mod.json"
+layout_ids, used_mods = [], []
+
+def walk(node):
+    if node.get("id"):
+        assert node["id"] not in layout_ids, f"duplicate layout id: {node['id']}"
+        layout_ids.append(node["id"])
+    content = node.get("content") or {}
+    if "mod" in content:
+        used_mods.append(content["mod"])
+    assert content or node.get("children"), f"block {node.get('id')} has no content"
+    for child in node.get("children", []):
+        walk(child)
+
+walk(layout)
+assert {"term", "chat", "inspector"} <= set(layout_ids), "layout lost a zone"
+# Built-in mods (workspace-status, pane, ...) live in the app home, not the repo.
+app_home = Path(os.environ.get("HERDR_APP_HOME", Path.home() / ".config/herdr-app")) / "mods"
+installed = {d.name for d in app_home.iterdir() if d.is_dir()} if app_home.is_dir() else set()
+missing_mods = set(used_mods) - mod_dirs - installed
+assert not missing_mods, f"layout references missing mods: {missing_mods}"
+
+print(f"OK  tokens={len(defined)}  ids={len(doc.ids)}  symbols={len(symbols)}  crew={len(crew)}  mods={len(mod_dirs)}  zones={len(layout_ids)}  contrast>=AA")
 

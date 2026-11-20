@@ -44,7 +44,7 @@ if [ "$MODE" = uninstall ]; then
   cp "$last" "$SETTINGS"
   for name in $NAMES; do rm -f "$APP_HOME/themes/$name.json"; done
   for m in $MODS; do rm -rf "${APP_HOME:?}/mods/$m"; done
-  rm -f "$APP_HOME/layouts/$LAYOUT.json"
+  rm -f "$APP_HOME/layouts/$LAYOUT.json" "$APP_HOME/layouts/.state/$LAYOUT.json"
   echo "restored $SETTINGS from $last"
   echo "removed  $APP_HOME/themes/onepiece-grandline*.json"
   prev="$(python3 -c 'import json,sys;print(json.load(open(sys.argv[1])).get("theme",""))' "$SETTINGS")"
@@ -79,6 +79,19 @@ for m in $MODS; do
   cp -R "$ROOT/mods/$m/." "$APP_HOME/mods/$m/"
 done
 cp "$ROOT/layouts/$LAYOUT.json" "$APP_HOME/layouts/$LAYOUT.json"
+
+# The app remembers each layout's theme slot per appearance; if those drifted
+# (a toggle test, a manual edit) Settings would show the wrong variant.
+state="$APP_HOME/layouts/.state/$LAYOUT.json"
+if [ -f "$state" ]; then
+  python3 - "$state" <<'PY'
+import json, sys
+path = sys.argv[1]
+d = json.load(open(path))
+d["theme"] = {"light": "onepiece-grandline-light", "dark": "onepiece-grandline"}
+open(path, "w").write(json.dumps(d, indent=2) + "\n")
+PY
+fi
 
 if python3 - "$SETTINGS" "$variant" "$SETTINGS.tmp" <<'PY'
 import json, os, sys

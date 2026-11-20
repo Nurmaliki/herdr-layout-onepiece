@@ -27,7 +27,7 @@ function belly() {
   const done = agents().filter((a) => a.status === "done").length;
   const base = BASE + done * MISSION + terminals().length * SUBTASK;
   try {
-    const store = window.localStorage;
+    const store = localStorage;
     const kept = Number(store.getItem("onepiece.belly") || 0);
     const best = Math.max(base, kept);
     if (best > kept) store.setItem("onepiece.belly", String(best));

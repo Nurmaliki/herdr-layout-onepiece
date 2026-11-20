@@ -36,6 +36,9 @@ function wires(t, list) {
   const height = Math.abs(last - top);
   const foot = LEFT.y + LEFT.h;
   const bus = CHIPS[0].y - 8;
+  const stem = LEFT.x + LEFT.w / 2;
+  const busFrom = CHIPS[0].x + CHIPS[0].w / 2;
+  const busTo = CHIPS[1].x + CHIPS[1].w / 2;
   return [
     div().absolute().left(GAP.x).top(top).w(1).h(height).bg(t.border),
     div().absolute().left(GAP.x - 2).top(BUS - 2).w(5).h(5).rounded(3).bg(t.accent),
@@ -44,8 +47,8 @@ function wires(t, list) {
       const tone = list[i + 1] ? t[CREW[i + 1].tone] : t.border;
       return div().absolute().left(GAP.x).top(y).w(GAP.w).h(1).bg(tone);
     }),
-    div().absolute().left(LEFT.x + 30).top(foot).w(1).h(bus - foot).bg(t.border),
-    div().absolute().left(LEFT.x + 30).top(bus).w(CHIPS[1].x - LEFT.x - 30).h(1).bg(t.border),
+    div().absolute().left(stem).top(foot).w(1).h(bus - foot).bg(t.border),
+    div().absolute().left(busFrom).top(bus).w(busTo - busFrom).h(1).bg(t.border),
     ...CHIPS.map((c, i) => {
       const tone = list[i + 4] ? t[CREW[i + 4].tone] : t.border;
       return div().absolute().left(c.x + c.w / 2).top(bus).w(1).h(c.y - bus).bg(tone);
