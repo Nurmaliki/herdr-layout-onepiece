@@ -1,7 +1,7 @@
 // Alur Command Center: Luffy delegates to the crew, live agent status on each node.
-import { View, div } from "gpui-kit";
+import { View, div, image } from "gpui-kit";
 import { h_flex, v_flex } from "gpui-base";
-import { agents, run, theme } from "herdr";
+import { agents, appHome, readTextFile, run, theme } from "herdr";
 
 const CREW = [
   { name: "Luffy", role: "Orchestrator", verb: "memimpin ekspedisi", tone: "accent" },
@@ -53,7 +53,43 @@ function wires(t, list) {
   ];
 }
 
+const avatarPath = (crew) => `mods/onepiece-alur/avatars/${crew.name.toLowerCase()}.png`;
+
 export default class OnepieceAlur extends View {
+  // Portraits are optional: `python3 make-avatars.py` drops them in; without them
+  // the node keeps its initial badge.
+  init(_props, cx) {
+    this.avatars = new Set();
+    const manifest = `${appHome()}/mods/onepiece-alur/avatars/index.json`;
+    readTextFile(manifest)
+      .then((text) => {
+        this.avatars = new Set(JSON.parse(text ?? "{}").ids ?? []);
+        cx.notify();
+      })
+      .catch(() => {});
+  }
+
+  avatar(t, crew, size) {
+    const tone = t[crew.tone] ?? t.accent;
+    if (this.avatars.has(crew.name)) {
+      return image(avatarPath(crew)).size(size).flex_none().rounded(size / 2);
+    }
+    return div()
+      .w(size)
+      .h(size)
+      .flex_none()
+      .rounded(size / 2)
+      .border(2)
+      .border_color(tone)
+      .flex()
+      .items_center()
+      .justify_center()
+      .text_size(size >= 24 ? 10 : 7)
+      .font_semibold()
+      .text_color(tone)
+      .child(size >= 24 ? crew.name.slice(0, 2).toUpperCase() : crew.name[0]);
+  }
+
   render(cx) {
     const t = theme();
     const list = agents();
@@ -112,21 +148,7 @@ export default class OnepieceAlur extends View {
         if (agent?.pane) run("pane.focus", { pane: agent.pane });
         cx.notify();
       })
-      .child(
-        div()
-          .w(14)
-          .h(14)
-          .flex_none()
-          .rounded(7)
-          .border(1)
-          .border_color(tone)
-          .flex()
-          .items_center()
-          .justify_center()
-          .text_size(7)
-          .text_color(tone)
-          .child(crew.name[0]),
-      )
+      .child(this.avatar(t, crew, 14))
       .child(div().flex_1().min_w(0).truncate().text_size(9).text_color(t.muted).child(crew.name))
       .child(div().w(4).h(4).flex_none().rounded(2).bg(agent ? (t[agent.status] ?? t.unknown) : t.border));
   }
@@ -155,22 +177,7 @@ export default class OnepieceAlur extends View {
         if (agent?.pane) run("pane.focus", { pane: agent.pane });
         cx.notify();
       })
-      .child(
-        div()
-          .w(30)
-          .h(30)
-          .flex_none()
-          .rounded(15)
-          .border(2)
-          .border_color(tone)
-          .flex()
-          .items_center()
-          .justify_center()
-          .text_size(10)
-          .font_semibold()
-          .text_color(tone)
-          .child(crew.name.slice(0, 2).toUpperCase()),
-      )
+      .child(this.avatar(t, crew, 30))
       .child(
         v_flex().min_w(0).flex_1().gap(1)
           .child(

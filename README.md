@@ -64,6 +64,7 @@ Balik ke layout lama: `herdr-app do layout.switch --name dev-layout`.
 | `mods/onepiece-*/` | 6 mod UI (nav, sidebar, alur, chat, inspector, actions) + ikon SVG (`jolly.svg`, `compass.svg`, `denden.svg`, `i-*.svg`) |
 | `check.py` | validasi preview: token, id, ARIA, kontras AA |
 | `crew-profiles.json` | 6 kru: prompt panjang, `title`, `status_idle/active`, warna badge, `avatar_prompt`, reward Belly |
+| `make-avatars.py` | avatar kru via API resmi OpenAI Images → `mods/onepiece-alur/avatars/` |
 
 ## Catatan
 
@@ -79,6 +80,8 @@ Balik ke layout lama: `herdr-app do layout.switch --name dev-layout`.
 - Crew chat mengirim `hc send <agent> <teks>` ke agent yang sedang fokus; Enter = kirim,
   tiap baris menampilkan jam perubahan status, dan ikon Den Den Mushi = lompat ke kru yang `blocked`.
 - Topbar: `+` = tab baru, `☀/☾` = tukar tema gelap ↔ parchment (tanpa buka Settings).
-- Ikon: `svg()` = mask satu warna (di-tint tema), `image()` = SVG penuh warna.
+- Ikon: `svg()` = mask satu warna (di-tint tema), `image()` = SVG/PNG penuh warna.
+- Avatar: `OPENAI_IMAGE_KEY=sk-... python3 make-avatars.py` (default `https://api.openai.com/v1`,
+  `gpt-image-1`, 1024², dipotong 96px). Tanpa file avatar, node tetap pakai inisial.
 - Yang tidak diporting: font Cinzel (tidak terpasang), animasi garis dashed
   (runtime hanya menganimasikan opacity/transform).
