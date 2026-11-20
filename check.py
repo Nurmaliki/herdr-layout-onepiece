@@ -55,8 +55,14 @@ for needle in ["Voyages", "Crew", "Log Pose", "Bounty", "WANTED", "Belly:",
                "System Integrity", "Beri perintah ke kru...", "is-running"]:
     assert needle in HTML, f"missing copy/hook: {needle}"
 
-crew = json.loads((ROOT / "crew-profiles.json").read_text())["crew"]
+profiles = json.loads((ROOT / "crew-profiles.json").read_text())
+crew = profiles["crew"]
 assert len(crew) == 6 and all(c["system_prompt"].strip() for c in crew), "crew profiles incomplete"
+assert {c["id"] for c in crew} == {"luffy", "nami", "zoro", "franky", "robin", "usopp"}, "crew ids drifted"
+for c in crew:
+    assert c["color"].startswith("#") and len(c["color"]) == 7, f"bad colour {c['id']}"
+    assert c["title"] and c["status_idle"] and c["status_active"], f"missing status copy {c['id']}"
+assert profiles["currency"]["rewards"]["subtask_complete"] == 50000, "currency rewards drifted"
 
 
 def lum(hexcolor):

@@ -16,7 +16,7 @@ Yang dilakukan:
 1. copy `onepiece-grandline.json` (gelap) dan `onepiece-grandline-light.json` (parchment) → `~/.config/herdr-app/themes/`
 2. backup `settings.json` → `settings.json.bak-onepiece-<timestamp>`
 3. set `theme` sesuai `appearance` di `settings.json` (`light` → parchment, `dark` → navy)
-4. `herdr-app do app.theme --name <variante>` (langsung berubah tanpa restart)
+4. `herdr-app do app.theme --name <varian>` (langsung berubah tanpa restart)
 
 **Penting:** pilihan Appearance cuma memilih file tema, tidak mengubah warna. Jadi tema gelap di slot
 Light tetap gelap. Karena itu ada dua file; jalankan ulang `./install-theme.sh` setelah mengganti
@@ -45,6 +45,7 @@ Zona yang terpasang:
 | topbar: Jolly Roger, mission, tab kapal | `onepiece-nav` |
 | sidebar 240px: menu + daftar + WANTED/Belly | `onepiece-sidebar` |
 | node graph Luffy → Nami/Zoro/Franky (status live) | `onepiece-alur` |
+| 50% kiri: crew chat + input kirim perintah + Den Den Mushi | `onepiece-chat` |
 | tombol SET SAIL / ANCHOR di bawah terminal | `onepiece-actions` |
 | panel kanan 300px: integrity, peta, Log Pose, bounty | `onepiece-inspector` |
 
@@ -60,9 +61,9 @@ Balik ke layout lama: `herdr-app do layout.switch --name dev-layout`.
 | `test-install.sh` | self-check pemasang + kontras AA kedua tema |
 | `index.html`, `theme-onepiece.css` | preview desain 4 zona (bukan tema Herdr) |
 | `layouts/onepiece-grandline.json` | susunan 4 zona (topbar, sidebar, alur, terminal, inspector) |
-| `mods/onepiece-*/` | 5 mod UI (nav, sidebar, alur, inspector, actions) |
+| `mods/onepiece-*/` | 6 mod UI (nav, sidebar, alur, chat, inspector, actions) + ikon SVG (`jolly.svg`, `compass.svg`, `denden.svg`, `i-*.svg`) |
 | `check.py` | validasi preview: token, id, ARIA, kontras AA |
-| `crew-profiles.json` | prompt 6 kru untuk pane agent (tempel manual) |
+| `crew-profiles.json` | 6 kru: prompt panjang, `title`, `status_idle/active`, warna badge, `avatar_prompt`, reward Belly |
 
 ## Catatan
 
@@ -74,5 +75,7 @@ Balik ke layout lama: `herdr-app do layout.switch --name dev-layout`.
 - Klik node kru = fokus pane agent-nya; menu sidebar = Voyages/Crew/Log Pose/Bounty.
 - Belly dihitung dari agent selesai + terminal hidup, disimpan di `localStorage` mod.
 - SET SAIL membuka tab shell baru; ANCHOR mengembalikan fokus ke terminal.
-- Yang tidak diporting: panel chat terpisah (pakai pane terminal), font Cinzel
-  (tidak terpasang), animasi garis dashed (runtime hanya menganimasikan opacity/transform).
+- Crew chat mengirim `hc send <agent> <teks>` ke agent yang sedang fokus; Enter = kirim.
+- Ikon: `svg()` = mask satu warna (di-tint tema), `image()` = SVG penuh warna.
+- Yang tidak diporting: font Cinzel (tidak terpasang), animasi garis dashed
+  (runtime hanya menganimasikan opacity/transform).

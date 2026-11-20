@@ -27,9 +27,10 @@ for f in onepiece-grandline.json onepiece-grandline-light.json; do
   cmp -s "$H/themes/$f" "$ROOT/$f" || { echo "FAIL: $f not copied"; exit 1; }
 done
 python3 -c 'import json,sys; d=json.load(open(sys.argv[1])); assert d["zoom"]==1' "$H/settings.json"
-for m in onepiece-nav onepiece-sidebar onepiece-alur onepiece-inspector onepiece-actions; do
+for m in onepiece-nav onepiece-sidebar onepiece-alur onepiece-inspector onepiece-actions onepiece-chat; do
   cmp -s "$H/mods/$m/main.js" "$ROOT/mods/$m/main.js" || { echo "FAIL: mod $m not copied"; exit 1; }
 done
+cmp -s "$H/mods/onepiece-sidebar/jolly.svg" "$ROOT/mods/onepiece-sidebar/jolly.svg" || { echo "FAIL: mod assets not copied"; exit 1; }
 cmp -s "$H/layouts/onepiece-grandline.json" "$ROOT/layouts/onepiece-grandline.json" || { echo "FAIL: layout not copied"; exit 1; }
 
 run

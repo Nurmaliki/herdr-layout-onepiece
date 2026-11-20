@@ -9,7 +9,7 @@ ROOT="$(cd "$(dirname "$0")" && pwd)"
 APP_HOME="${HERDR_APP_HOME:-$HOME/.config/herdr-app}"
 SETTINGS="$APP_HOME/settings.json"
 NAMES="onepiece-grandline onepiece-grandline-light"
-MODS="onepiece-nav onepiece-sidebar onepiece-alur onepiece-inspector onepiece-actions"
+MODS="onepiece-nav onepiece-sidebar onepiece-alur onepiece-inspector onepiece-actions onepiece-chat"
 LAYOUT=onepiece-grandline
 MODE=apply
 
@@ -76,7 +76,7 @@ mkdir -p "$APP_HOME/themes" "$APP_HOME/mods" "$APP_HOME/layouts"
 for name in $NAMES; do cp "$ROOT/$name.json" "$APP_HOME/themes/$name.json"; done
 for m in $MODS; do
   mkdir -p "$APP_HOME/mods/$m"
-  cp "$ROOT/mods/$m/main.js" "$ROOT/mods/$m/mod.json" "$APP_HOME/mods/$m/"
+  cp -R "$ROOT/mods/$m/." "$APP_HOME/mods/$m/"
 done
 cp "$ROOT/layouts/$LAYOUT.json" "$APP_HOME/layouts/$LAYOUT.json"
 

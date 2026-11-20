@@ -1,5 +1,5 @@
 // Topbar: Jolly Roger, mission name (space), sail tabs (tabs of the shown space).
-import { View, div } from "gpui-kit";
+import { View, div, svg } from "gpui-kit";
 import { h_flex } from "gpui-base";
 import { spaces, focused, run, theme } from "herdr";
 
@@ -17,7 +17,7 @@ export default class OnepieceNav extends View {
       .bg(t.chrome)
       .border_b(1)
       .border_color(t.border)
-      .child(div().text_size(15).text_color(t.accent).child("☠"))
+      .child(svg("mods/onepiece-nav/jolly.svg").size(18).flex_none().text_color(t.accent))
       .child(div().text_size(11).font_semibold().text_color(t.accent).child("GRAND LINE"))
       .child(div().w(1).h(16).flex_none().bg(t.border))
       .child(div().text_size(10).text_color(t.dim).child("MISSION"))

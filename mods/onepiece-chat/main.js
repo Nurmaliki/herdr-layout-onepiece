@@ -1,5 +1,5 @@
 // Crew chat: live crew roster as a message feed, input sends to the focused agent.
-import { View, div } from "gpui-kit";
+import { View, div, image } from "gpui-kit";
 import { v_flex, h_flex, InputState, Input } from "gpui-base";
 import { agents, focused, hc, run, theme } from "herdr";
 
@@ -136,7 +136,7 @@ export default class OnepieceChat extends View {
               .child(
                 h_flex().gap(4).items_center()
                   .when(blocked > 0, (el) => el.loop("opacity", { from: 0.5, to: 1, period: 900 }))
-                  .child(div().text_size(10).text_color(blocked ? t.blocked : t.dim).child("@"))
+                  .child(image("mods/onepiece-chat/denden.svg").size(16).flex_none())
                   .child(div().text_size(9).text_color(t.dim).child(blocked ? `${blocked} alert` : "den den mushi")),
               ),
           ),

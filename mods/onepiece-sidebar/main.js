@@ -1,5 +1,5 @@
 // Sidebar: Jolly Roger, Voyages/Crew/Log Pose/Bounty, WANTED card with Belly score.
-import { View, div } from "gpui-kit";
+import { View, div, svg } from "gpui-kit";
 import { v_flex, h_flex } from "gpui-base";
 import { spaces, agents, terminals, focused, run, theme, shared, setShared } from "herdr";
 
@@ -9,10 +9,10 @@ const INK = "#2B2118";
 const INK_MUTED = "#5C4938";
 const FRAME = "#8C6D46";
 const MENU = [
-  ["voyages", "Voyages", "⚓"],
-  ["crew", "Crew", "☠"],
-  ["logpose", "Log Pose", "✦"],
-  ["bounty", "Bounty", "฿"],
+  ["voyages", "Voyages", "i-voyages.svg"],
+  ["crew", "Crew", "i-crew.svg"],
+  ["logpose", "Log Pose", "i-logpose.svg"],
+  ["bounty", "Bounty", "i-bounty.svg"],
 ];
 
 const rupiah = (n) => String(Math.round(n)).replace(/\B(?=(\d{3})+(?!\d))/g, ".");
@@ -70,7 +70,7 @@ export default class OnepieceSidebar extends View {
           .flex_none()
           .gap(8)
           .items_center()
-          .child(div().text_size(16).text_color(t.accent).child("☠"))
+          .child(svg("mods/onepiece-sidebar/jolly.svg").size(20).text_color(t.accent))
           .child(div().text_size(12).font_semibold().text_color(t.accent).child("HERDR")),
       )
       .child(
@@ -79,7 +79,7 @@ export default class OnepieceSidebar extends View {
           .gap(2)
           .flex_none()
           .children(
-            MENU.map(([key, label, glyph]) =>
+            MENU.map(([key, label, icon]) =>
               h_flex()
                 .id(`menu-${key}`)
                 .h(28)
@@ -95,11 +95,10 @@ export default class OnepieceSidebar extends View {
                   cx.notify();
                 })
                 .child(
-                  div()
-                    .w(14)
-                    .text_size(11)
-                    .text_color(section === key ? t.accent : t.muted)
-                    .child(glyph),
+                  svg(`mods/onepiece-sidebar/${icon}`)
+                    .size(13)
+                    .flex_none()
+                    .text_color(section === key ? t.accent : t.muted),
                 )
                 .child(
                   div()

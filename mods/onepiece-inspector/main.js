@@ -1,5 +1,5 @@
 // Parchment inspector: mission, Sunny's Integrity, map + Log Pose, bounty progress.
-import { View, div, PathBuilder } from "gpui-kit";
+import { View, div, PathBuilder, image } from "gpui-kit";
 import { h_flex, v_flex } from "gpui-base";
 import { agents, focused, spaces, terminals, theme, shared } from "herdr";
 
@@ -48,9 +48,6 @@ export default class OnepieceInspector extends View {
       .cubic_bezier_to(22, 6, 34, 52, 48, 22)
       .line_to(62, 30)
       .build();
-    const needle = PathBuilder.fill()
-      .add_polygon([[22, 3], [28, 30], [22, 24], [16, 30]], true)
-      .build();
 
     return v_flex()
       .size_full()
@@ -92,16 +89,10 @@ export default class OnepieceInspector extends View {
               .child(window.paint_path(route, FRAME).absolute().left(0).top(0).size_full()),
           )
           .child(
-            div().relative().w(44).h(44).rounded(22).border(2).border_color(FRAME)
-              .child(
-                window
-                  .paint_path(needle, INK)
-                  .absolute()
-                  .left(0)
-                  .top(0)
-                  .size_full()
-                  .when(working.length > 0, (el) => el.spin(6000)),
-              ),
+            image("mods/onepiece-inspector/compass.svg")
+              .size(46)
+              .flex_none()
+              .when(working.length > 0, (el) => el.spin(6000)),
           )
           .child(
             v_flex().flex_1().min_w(0).gap(1)
