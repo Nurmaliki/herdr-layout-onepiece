@@ -44,7 +44,7 @@ Zona yang terpasang:
 | --- | --- |
 | topbar: Jolly Roger, mission, tab kapal | `onepiece-nav` |
 | sidebar 240px: menu + daftar + WANTED/Belly | `onepiece-sidebar` |
-| node graph Luffy → Nami/Zoro/Franky (status live) | `onepiece-alur` |
+| node graph Luffy → Nami/Zoro/Franky + pil Robin/Usopp (status live) | `onepiece-alur` |
 | 50% kiri: crew chat + input kirim perintah + Den Den Mushi | `onepiece-chat` |
 | tombol SET SAIL / ANCHOR di bawah terminal | `onepiece-actions` |
 | panel kanan 300px: integrity, peta, Log Pose, bounty | `onepiece-inspector` |
@@ -73,9 +73,12 @@ Balik ke layout lama: `herdr-app do layout.switch --name dev-layout`.
 - `~/.config/herdr-app/themes/<nama>.json` = id tema; pakai `app.theme` untuk ganti.
 - `HERDR_APP_HOME=/path ./install-theme.sh` untuk home lain.
 - Klik node kru = fokus pane agent-nya; menu sidebar = Voyages/Crew/Log Pose/Bounty.
-- Belly dihitung dari agent selesai + terminal hidup, disimpan di `localStorage` mod.
+- Belly = 5.000.000 + 500.000/agent selesai + 50.000/terminal hidup (lihat `currency.rewards`),
+  disimpan sebagai nilai tertinggi di `localStorage` mod.
 - SET SAIL membuka tab shell baru; ANCHOR mengembalikan fokus ke terminal.
-- Crew chat mengirim `hc send <agent> <teks>` ke agent yang sedang fokus; Enter = kirim.
+- Crew chat mengirim `hc send <agent> <teks>` ke agent yang sedang fokus; Enter = kirim,
+  tiap baris menampilkan jam perubahan status, dan ikon Den Den Mushi = lompat ke kru yang `blocked`.
+- Topbar: `+` = tab baru, `☀/☾` = tukar tema gelap ↔ parchment (tanpa buka Settings).
 - Ikon: `svg()` = mask satu warna (di-tint tema), `image()` = SVG penuh warna.
 - Yang tidak diporting: font Cinzel (tidak terpasang), animasi garis dashed
   (runtime hanya menganimasikan opacity/transform).

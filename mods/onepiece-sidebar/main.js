@@ -17,10 +17,15 @@ const MENU = [
 
 const rupiah = (n) => String(Math.round(n)).replace(/\B(?=(\d{3})+(?!\d))/g, ".");
 
-// Ship's purse: grows with finished agents and live terminals; never shrinks.
+// Ship's purse: base bounty + mission reward per finished agent + subtask per live
+// terminal (see currency.rewards in crew-profiles.json); never shrinks.
+const BASE = 5000000;
+const MISSION = 500000;
+const SUBTASK = 50000;
+
 function belly() {
   const done = agents().filter((a) => a.status === "done").length;
-  const base = 5000000 + done * 50000 + terminals().length * 250000;
+  const base = BASE + done * MISSION + terminals().length * SUBTASK;
   try {
     const store = window.localStorage;
     const kept = Number(store.getItem("onepiece.belly") || 0);

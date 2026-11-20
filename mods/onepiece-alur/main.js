@@ -8,11 +8,14 @@ const CREW = [
   { name: "Nami", role: "Navigator", verb: "memetakan rute", tone: "ansi3" },
   { name: "Zoro", role: "Refactorer", verb: "menebas bug", tone: "ansi2" },
   { name: "Franky", role: "DevOps", verb: "membangun infrastruktur", tone: "ansi4" },
+  { name: "Robin", role: "Security", verb: "mengaudit kode", tone: "ansi5" },
+  { name: "Usopp", role: "QA & Test", verb: "membidik edge case", tone: "ansi6" },
 ];
 const W = 560;
 const H = 200;
 const LEFT = { x: 12, y: 72, w: 156, h: 56 };
 const RIGHT = [8, 72, 136].map((y) => ({ x: 348, y, w: 170, h: 56 }));
+const CHIPS = [12, 92].map((x) => ({ x, y: 146, w: 76, h: 22 }));
 const GAP = { x: LEFT.x + LEFT.w, w: RIGHT[0].x - (LEFT.x + LEFT.w) };
 const BUS = LEFT.y + LEFT.h / 2;
 
@@ -24,12 +27,15 @@ const statusWord = (a, verb) => {
   return "siaga";
 };
 
-// Elbow connectors: one vertical bus off Luffy, one stub to each crew node.
+// Elbow connectors: one vertical bus off Luffy, one stub to each crew node; a short
+// drop from Luffy's foot feeds the two reserve crew (Robin, Usopp).
 function wires(t, list) {
   const first = RIGHT[0].y + RIGHT[0].h / 2;
   const last = RIGHT[2].y + RIGHT[2].h / 2;
   const top = Math.min(first, BUS);
   const height = Math.abs(last - top);
+  const foot = LEFT.y + LEFT.h;
+  const bus = CHIPS[0].y - 8;
   return [
     div().absolute().left(GAP.x).top(top).w(1).h(height).bg(t.border),
     div().absolute().left(GAP.x - 2).top(BUS - 2).w(5).h(5).rounded(3).bg(t.accent),
@@ -37,6 +43,12 @@ function wires(t, list) {
       const y = r.y + r.h / 2;
       const tone = list[i + 1] ? t[CREW[i + 1].tone] : t.border;
       return div().absolute().left(GAP.x).top(y).w(GAP.w).h(1).bg(tone);
+    }),
+    div().absolute().left(LEFT.x + 30).top(foot).w(1).h(bus - foot).bg(t.border),
+    div().absolute().left(LEFT.x + 30).top(bus).w(CHIPS[1].x - LEFT.x - 30).h(1).bg(t.border),
+    ...CHIPS.map((c, i) => {
+      const tone = list[i + 4] ? t[CREW[i + 4].tone] : t.border;
+      return div().absolute().left(c.x + c.w / 2).top(bus).w(1).h(c.y - bus).bg(tone);
     }),
   ];
 }
@@ -71,9 +83,52 @@ export default class OnepieceAlur extends View {
               .h(H)
               .children(wires(t, list))
               .child(this.node(t, cx, CREW[0], lead, LEFT))
-              .children(RIGHT.map((r, i) => this.node(t, cx, CREW[i + 1], list[i + 1], r))),
+              .children(RIGHT.map((r, i) => this.node(t, cx, CREW[i + 1], list[i + 1], r)))
+              .children(CHIPS.map((c, i) => this.chip(t, cx, CREW[i + 4], list[i + 4], c))),
           ),
       );
+  }
+
+  // Reserve crew: a pill instead of a card, still live and clickable.
+  chip(t, cx, crew, agent, pos) {
+    const tone = t[crew.tone] ?? t.accent;
+    return h_flex()
+      .id(`chip-${crew.name}`)
+      .absolute()
+      .left(pos.x)
+      .top(pos.y)
+      .w(pos.w)
+      .h(pos.h)
+      .gap(5)
+      .items_center()
+      .px(5)
+      .rounded(11)
+      .bg(t.surface)
+      .border(1)
+      .border_color(agent ? tone : t.border)
+      .hover((s) => s.bg(t.raised))
+      .cursor_pointer()
+      .on_click((_e, cx) => {
+        if (agent?.pane) run("pane.focus", { pane: agent.pane });
+        cx.notify();
+      })
+      .child(
+        div()
+          .w(14)
+          .h(14)
+          .flex_none()
+          .rounded(7)
+          .border(1)
+          .border_color(tone)
+          .flex()
+          .items_center()
+          .justify_center()
+          .text_size(7)
+          .text_color(tone)
+          .child(crew.name[0]),
+      )
+      .child(div().flex_1().min_w(0).truncate().text_size(9).text_color(t.muted).child(crew.name))
+      .child(div().w(4).h(4).flex_none().rounded(2).bg(agent ? (t[agent.status] ?? t.unknown) : t.border));
   }
 
   node(t, cx, crew, agent, pos) {

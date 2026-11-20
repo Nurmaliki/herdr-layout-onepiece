@@ -67,7 +67,9 @@
               },
               "content": {
                 "mod": "onepiece-alur"
-              }
+              },
+              "min": 212,
+              "max": 212
             },
             {
               "id": "stage",

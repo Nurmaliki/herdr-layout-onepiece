@@ -12,11 +12,46 @@ const LABEL = {
 
 const initials = (a) => (a.title || a.program?.name || "??").replace(/[^\p{L}\p{N} ]/gu, "").trim().slice(0, 2).toUpperCase();
 
+function loadStamps() {
+  try {
+    const raw = JSON.parse(localStorage.getItem("onepiece.chat.stamps") || "{}");
+    return raw && typeof raw === "object" ? raw : {};
+  } catch {
+    return {};
+  }
+}
+
+const clock = (ms) => (ms ? new Date(ms).toTimeString().slice(0, 5) : "");
+
 export default class OnepieceChat extends View {
-  init() {
+  init(_props, cx) {
     this.note = "";
     this.input = InputState.new({ placeholder: "Beri perintah ke kru…" });
     this.input.on("submit", (_e, cx) => this.send(cx));
+    this.stamps = loadStamps();
+    this.stamp();
+    cx.timer.every(2000, (cx) => {
+      this.stamp();
+      cx.notify();
+    });
+  }
+
+  // When each (agent, status) pair was first seen, so the feed can show a time.
+  stamp() {
+    const now = Date.now();
+    const next = {};
+    let dirty = false;
+    for (const a of agents()) {
+      const key = `${a.address}:${a.status}`;
+      next[key] = this.stamps[key] ?? now;
+      if (!this.stamps[key]) dirty = true;
+    }
+    if (dirty || Object.keys(next).length !== Object.keys(this.stamps).length) {
+      this.stamps = next;
+      try {
+        localStorage.setItem("onepiece.chat.stamps", JSON.stringify(next));
+      } catch {}
+    }
   }
 
   send(cx) {
@@ -111,6 +146,7 @@ export default class OnepieceChat extends View {
                     .child(div().text_size(9).text_color(t.muted).truncate()
                       .child(`${LABEL[a.status] ?? a.status} · ${a.space_name} / ${a.tab_name}`)),
                 )
+                .child(div().text_size(9).text_color(t.dim).flex_none().child(clock(this.stamps[`${a.address}:${a.status}`])))
                 .child(div().w(6).h(6).flex_none().rounded(3).bg(tone));
             }),
           ),
@@ -134,7 +170,16 @@ export default class OnepieceChat extends View {
             h_flex().justify_between().items_center()
               .child(div().text_size(9).text_color(t.dim).truncate().child(this.note || "kirim ke kru yang sedang aktif"))
               .child(
-                h_flex().gap(4).items_center()
+                h_flex()
+                  .id("denden")
+                  .gap(4)
+                  .items_center()
+                  .cursor_pointer()
+                  .on_click((_e, cx) => {
+                    const b = list.find((a) => a.status === "blocked");
+                    if (b?.pane) run("pane.focus", { pane: b.pane });
+                    cx.notify();
+                  })
                   .when(blocked > 0, (el) => el.loop("opacity", { from: 0.5, to: 1, period: 900 }))
                   .child(image("mods/onepiece-chat/denden.svg").size(16).flex_none())
                   .child(div().text_size(9).text_color(t.dim).child(blocked ? `${blocked} alert` : "den den mushi")),

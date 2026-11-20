@@ -1,7 +1,7 @@
 // Topbar: Jolly Roger, mission name (space), sail tabs (tabs of the shown space).
 import { View, div, svg } from "gpui-kit";
 import { h_flex } from "gpui-base";
-import { spaces, focused, run, theme } from "herdr";
+import { spaces, focused, run, theme, settings } from "herdr";
 
 export default class OnepieceNav extends View {
   render() {
@@ -67,7 +67,48 @@ export default class OnepieceNav extends View {
                 })
                 .child(`⚙ ${tab.name || "task"}`),
             ),
+          )
+          .child(
+            div()
+              .id("new-tab")
+              .w(22)
+              .h(22)
+              .flex_none()
+              .rounded(6)
+              .flex()
+              .items_center()
+              .justify_center()
+              .text_size(12)
+              .text_color(t.dim)
+              .hover((s) => s.bg(t.hover).text_color(t.foreground))
+              .cursor_pointer()
+              .on_click((_e, cx) => {
+                run("tab.new");
+                cx.notify();
+              })
+              .child("+"),
           ),
+      )
+      .child(
+        div()
+          .id("theme-toggle")
+          .w(22)
+          .h(22)
+          .flex_none()
+          .rounded(6)
+          .flex()
+          .items_center()
+          .justify_center()
+          .text_size(11)
+          .text_color(t.muted)
+          .hover((s) => s.bg(t.hover).text_color(t.foreground))
+          .cursor_pointer()
+          .on_click((_e, cx) => {
+            const light = String(settings()?.theme ?? "").includes("light");
+            run("app.theme", { name: light ? "onepiece-grandline" : "onepiece-grandline-light" });
+            cx.notify();
+          })
+          .child(String(settings()?.theme ?? "").includes("light") ? "☀" : "☾"),
       )
       .child(div().text_size(10).text_color(t.dim).child("onepiece · grand line"));
   }
