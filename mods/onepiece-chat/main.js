@@ -6,7 +6,7 @@ import { v_flex, h_flex, InputState, Input } from "gpui-base";
 import { agents, focused, hc, run, theme } from "herdr";
 
 const CAP = 40;
-const KEY = "onepiece.chat.log";
+const KEY = "onepiece.chat.log.v2";
 
 const clock = (ms) => (ms ? new Date(ms).toTimeString().slice(0, 5) : "");
 
@@ -28,7 +28,7 @@ function loadLog() {
 }
 
 // ANSI, box drawing and TUI chrome all lie about being a sentence.
-const BOX = /[│┃┌┐└┘├┤┬┴┼─━╭╮╰╯▌▐█▰▱▔▁]/g;
+const BOX = /[│┃┌┐└┘├┤┬┴┼─━╭╮╰╯▌▐█▰▱▔▁◼▮▕▏⏺⬤◻]/g;
 const CHROME = /esc\s|\d+(\.\d+)?K\b|↑|↓|\(\d+%\)|ctrl\+|⏎|\bauto\b|^[~/]|^(build|plan|thought|worked) ·|\(\d+ earlier lines?\)/i;
 
 function saidLines(text) {
