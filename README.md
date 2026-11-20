@@ -96,6 +96,17 @@ Balik ke layout lama: `herdr-app do layout.switch --name dev-layout`.
 - Avatar resmi API: `OPENAI_IMAGE_KEY=sk-... python3 make-avatars.py` (`api.openai.com`, `gpt-image-1`).
 - Gambar avatar **tidak di-commit** (`.gitignore`): materi berhak cipta Eiichiro Oda/Toei,
   untuk pemakaian pribadi di mesin sendiri; repo hanya berisi skrip pengambilnya.
+- Tombol `☀/☾` mengubah `appearance` **global** di `settings.json`, jadi layout lain
+  (dev-layout dsb.) ikut berganti terang/gelap. Kalau tidak mau, ganti tema lewat
+  `./install-theme.sh` saja.
+- Crew chat bukan transkrip: yang tampil kalimat **terakhir** yang terbaca di terminal
+  agent, jadi sesekali bisa kena baris TUI yang aneh (progress/status). Itu batas
+  heuristiknya, bukan bug.
+- `./test-fungsi.sh` butuh window Herdr terbuka + ImageMagick (`magick`). Titik sampel
+  pakai persentase, jadi tahan resize; kalau jendela dikecilkan sangat sempit, panel
+  inspector bisa tidak ada di 92% lebar dan cek itu gagal.
+- Yang tidak bisa dites skrip: klik mouse literal (`on_click`). Itu butuh izin
+  Accessibility untuk Terminal; skrip hanya menguji command yang dipanggil tombolnya.
 - Yang tidak diporting: font Cinzel (tidak terpasang), animasi garis dashed
   (runtime hanya menganimasikan opacity/transform).
 ## Cek fungsi (app harus terbuka)

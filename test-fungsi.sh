@@ -21,7 +21,12 @@ fi
 pass() { printf 'PASS  %s\n' "$1"; }
 fail() { printf 'FAIL  %s\n' "$1"; FAILS=$((FAILS + 1)); }
 check() { if [ "$2" = "$3" ]; then pass "$1"; else fail "$1 (want $3, got $2)"; fi; }
-pixel() { magick "$1" -alpha off -format "%[hex:p{$2}]" info:; }
+# Sample a point given as percentages, so resizing the window does not break the test.
+pixel() {
+  local w h
+  read -r w h <<< "$(magick identify -format '%w %h' "$1")"
+  magick "$1" -alpha off -format "%[hex:p{$(( $2 * w / 100 )),$(( $3 * h / 100 ))}]" info:
+}
 field() { python3 -c "import json,sys;d=json.load(sys.stdin);print($1)"; }
 
 cp "$APP_HOME/settings.json" "$TMP/settings.json" 2>/dev/null || true
@@ -72,16 +77,16 @@ done
 echo "== theme paints (pixel, 2x frame)"
 apply light onepiece-grandline-light
 herdr-app shot "$TMP/light.png" >/dev/null
-check "light: sidebar chrome" "$(pixel "$TMP/light.png" 100,1400)" "E9DCC0"
-check "light: inspector parchment" "$(pixel "$TMP/light.png" 3100,1400)" "F4ECD8"
+check "light: sidebar chrome" "$(pixel "$TMP/light.png" 3 69)" "E9DCC0"
+check "light: inspector parchment" "$(pixel "$TMP/light.png" 92 69)" "F4ECD8"
 check "settings.json tidak dilawan balik" \
   "$(field 'd["appearance"]+"/"+d["theme"]' < "$APP_HOME/settings.json")" "light/onepiece-grandline-light"
 
 apply dark onepiece-grandline
 herdr-app shot "$TMP/dark.png" >/dev/null
-check "dark: sidebar chrome" "$(pixel "$TMP/dark.png" 100,1400)" "1C2541"
-check "dark: inspector tetap parchment" "$(pixel "$TMP/dark.png" 3100,1400)" "F4ECD8"
-check "dark: tombol SET SAIL merah" "$(pixel "$TMP/dark.png" 700,1900)" "E63946"
+check "dark: sidebar chrome" "$(pixel "$TMP/dark.png" 3 69)" "1C2541"
+check "dark: inspector tetap parchment" "$(pixel "$TMP/dark.png" 92 69)" "F4ECD8"
+check "dark: tombol SET SAIL merah" "$(pixel "$TMP/dark.png" 21 93)" "E63946"
 check "settings.json tidak dilawan balik" \
   "$(field 'd["appearance"]+"/"+d["theme"]' < "$APP_HOME/settings.json")" "dark/onepiece-grandline"
 apply light onepiece-grandline-light
