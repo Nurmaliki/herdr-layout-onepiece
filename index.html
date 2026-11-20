@@ -1,0 +1,793 @@
+<!DOCTYPE html>
+<html lang="id" data-theme="onepiece-grandline">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Herdr — One Piece: Grand Line Edition</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='15' fill='%230B132B'/%3E%3Cg fill='%23F4A261'%3E%3Crect x='7' y='10' width='18' height='2.6' rx='1.3'/%3E%3Cpath d='M9 10c0-4 3-5.5 7-5.5s7 1.5 7 5.5z'/%3E%3Ccircle cx='16' cy='19' r='6'/%3E%3C/g%3E%3Cg fill='%230B132B'%3E%3Ccircle cx='13.7' cy='18.4' r='1.6'/%3E%3Ccircle cx='18.3' cy='18.4' r='1.6'/%3E%3C/g%3E%3C/svg%3E">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700;800&family=IM+Fell+English:ital@0;1&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="theme-onepiece.css">
+</head>
+<body>
+
+<!-- Icon sprite -->
+<svg class="sprite" aria-hidden="true" focusable="false">
+  <symbol id="i-jolly" viewBox="0 0 48 48">
+    <g fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round">
+      <path d="M9 36 37 12M12 12l24 24"/>
+    </g>
+    <circle cx="24" cy="27" r="9.5" fill="currentColor"/>
+    <g fill="#0B132B">
+      <circle cx="20.4" cy="26" r="2.3"/><circle cx="27.6" cy="26" r="2.3"/>
+      <path d="M24 29.4 22.4 32h3.2z"/>
+    </g>
+    <g fill="currentColor">
+      <path d="M15.5 14.5c0-5.4 3.6-7.6 8.5-7.6s8.5 2.2 8.5 7.6z"/>
+      <rect x="12" y="13" width="24" height="3.2" rx="1.6"/>
+      <rect x="15" y="11.4" width="18" height="2" rx="1" fill="#E63946"/>
+    </g>
+  </symbol>
+  <symbol id="i-helm" viewBox="0 0 24 24">
+    <circle cx="12" cy="12" r="7.2"/><circle cx="12" cy="12" r="2.7"/>
+    <path d="M12 2.4v3M12 18.6v3M2.4 12h3M18.6 12h3M5.3 5.3l2.1 2.1M16.6 16.6l2.1 2.1M18.7 5.3l-2.1 2.1M7.4 16.6l-2.1 2.1"/>
+  </symbol>
+  <symbol id="i-anchor" viewBox="0 0 24 24">
+    <circle cx="12" cy="4.8" r="2.3"/>
+    <path d="M12 7.1V21M8.3 10.2h7.4"/>
+    <path d="M4 14.2c0 4 3.4 6.8 8 6.8s8-2.8 8-6.8"/>
+    <path d="M4 14.2h3M17 14.2h3"/>
+  </symbol>
+  <symbol id="i-logpose" viewBox="0 0 24 24">
+    <circle cx="12" cy="12" r="8.4"/><circle cx="12" cy="12" r="1.1"/>
+    <path d="M12 3.6v2.2M12 18.2v2.2M3.6 12h2.2M18.2 12h2.2"/>
+    <path d="M15.7 8.3 10.1 9.9l-1.8 5.8 5.7-1.7z"/>
+  </symbol>
+  <symbol id="i-chest" viewBox="0 0 24 24">
+    <rect x="3.4" y="10.2" width="17.2" height="9.4" rx="1.6"/>
+    <path d="M3.4 10.2c0-3 1.8-5 4.2-5h8.8c2.4 0 4.2 2 4.2 5"/>
+    <path d="M3.4 13.6h17.2M10.4 10.2v3.4h3.2v-3.4"/>
+    <path d="M10.4 13.6h3.2v2.8h-3.2z"/>
+  </symbol>
+  <symbol id="i-swords" viewBox="0 0 24 24">
+    <path d="M4 3.5 14 13.5M3 8l2.6-4.5L9.8 5M20 3.5 10 13.5M21 8l-2.6-4.5L14.2 5"/>
+    <path d="M13.5 14.5 16 17M10.5 14.5 8 17M6.5 17.5 5 19M17.5 17.5 19 19"/>
+  </symbol>
+  <symbol id="i-wrench" viewBox="0 0 24 24">
+    <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/>
+  </symbol>
+  <symbol id="i-send" viewBox="0 0 24 24">
+    <path d="M21.5 2.5 10.8 21l-1.6-7.2L2 12.2z"/><path d="M21.5 2.5 9.2 13.8"/>
+  </symbol>
+  <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+  <symbol id="i-panel" viewBox="0 0 24 24">
+    <rect x="3" y="4" width="18" height="16" rx="2"/><path d="M15 4v16"/>
+  </symbol>
+  <symbol id="i-theme" viewBox="0 0 24 24">
+    <circle cx="12" cy="12" r="8.5"/><path d="M12 3.5a8.5 8.5 0 0 0 0 17z" fill="currentColor" stroke="none"/>
+  </symbol>
+  <symbol id="i-terminal" viewBox="0 0 24 24">
+    <rect x="2.5" y="4" width="19" height="16" rx="2"/><path d="m6.5 9 3 3-3 3M12.5 15h5"/>
+  </symbol>
+</svg>
+
+<div class="app">
+
+  <!-- ======================================================================
+       ZONE 1 — LEFT NAVIGATION (240px)
+       ====================================================================== -->
+  <aside class="sidebar" aria-label="Navigasi utama">
+    <div class="brand">
+      <div class="brand__mark"><svg viewBox="0 0 48 48" aria-hidden="true"><use href="#i-jolly"/></svg></div>
+      <div class="brand__text">
+        <span class="brand__name">HERDR</span>
+        <span class="brand__tag">Grand Line Edition</span>
+      </div>
+    </div>
+
+    <nav class="nav" aria-label="Menu kru">
+      <p class="nav__label">Navigasi</p>
+
+      <a class="nav-item" href="#voyages" aria-current="page" title="Voyages — Projects">
+        <span class="nav-item__ico"><svg class="icon" aria-hidden="true"><use href="#i-helm"/></svg></span>
+        <span class="nav-item__text">
+          <span class="nav-item__name">Voyages</span>
+          <span class="nav-item__sub">Projects</span>
+        </span>
+        <span class="nav-item__count" aria-label="4 proyek">4</span>
+      </a>
+
+      <a class="nav-item" href="#crew" title="Crew — Agent Teams">
+        <span class="nav-item__ico"><svg class="icon" aria-hidden="true"><use href="#i-anchor"/></svg></span>
+        <span class="nav-item__text">
+          <span class="nav-item__name">Crew</span>
+          <span class="nav-item__sub">Agent Teams</span>
+        </span>
+        <span class="nav-item__count" aria-label="6 kru">6</span>
+      </a>
+
+      <a class="nav-item" href="#log-pose" title="Log Pose — Navigation">
+        <span class="nav-item__ico"><svg class="icon" aria-hidden="true"><use href="#i-logpose"/></svg></span>
+        <span class="nav-item__text">
+          <span class="nav-item__name">Log Pose</span>
+          <span class="nav-item__sub">Navigation</span>
+        </span>
+        <span class="nav-item__count" aria-label="3 rute">3</span>
+      </a>
+
+      <a class="nav-item" href="#bounty" title="Bounty — Tasks &amp; Metrics">
+        <span class="nav-item__ico"><svg class="icon" aria-hidden="true"><use href="#i-chest"/></svg></span>
+        <span class="nav-item__text">
+          <span class="nav-item__name">Bounty</span>
+          <span class="nav-item__sub">Tasks &amp; Metrics</span>
+        </span>
+        <span class="nav-item__count" aria-label="12 tugas">12</span>
+      </a>
+    </nav>
+
+    <div class="sidebar__foot">
+      <article class="wanted" aria-label="Kartu profil kru">
+        <span class="wanted__tape" aria-hidden="true"></span>
+        <p class="wanted__word">WANTED</p>
+        <div class="wanted__avatar" aria-hidden="true">ML</div>
+        <h2 class="wanted__name">Monkey D. Maliki</h2>
+        <p class="wanted__role">Captain · Orchestrator</p>
+        <div class="wanted__divider" aria-hidden="true"></div>
+        <p class="wanted__bounty">Belly:
+          <span class="wanted__belly" id="belly">฿&nbsp;82.500.000</span>
+        </p>
+      </article>
+    </div>
+  </aside>
+
+  <!-- ======================================================================
+       ZONES 2 + 3 — CENTER DECK
+       ====================================================================== -->
+  <main class="deck">
+
+    <!-- ZONE 2 — orchestration canvas -->
+    <section class="canvas" aria-label="Alur Command Center">
+      <div class="tabs">
+        <div class="tablist" role="tablist" aria-label="Sesi misi">
+          <button class="tab" id="tab-mission" role="tab" aria-selected="true" aria-controls="graph" data-mission="Grand Line Setup">
+            <svg class="icon icon--sm" aria-hidden="true"><use href="#i-jolly"/></svg>
+            <span>Mission: Grand Line Setup</span>
+            <span class="tab__dot" aria-hidden="true"></span>
+          </button>
+          <button class="tab" id="tab-task" role="tab" aria-selected="false" aria-controls="graph" tabindex="-1" data-mission="Refactor Ship System">
+            <svg class="icon icon--sm" aria-hidden="true"><use href="#i-wrench"/></svg>
+            <span>Task: Refactor Ship System</span>
+          </button>
+        </div>
+        <button class="tab tab--add" id="tab-add" type="button" title="Sesi baru">
+          <svg class="icon icon--sm" aria-hidden="true"><use href="#i-plus"/></svg>
+          <span class="sr-only">Sesi baru</span>
+        </button>
+
+        <span class="tabs__spacer"></span>
+
+        <button class="icon-btn inspector-toggle" id="inspectorToggle" type="button"
+                aria-controls="inspector" aria-expanded="false" title="Buka Detail Inspection">
+          <svg class="icon" aria-hidden="true"><use href="#i-panel"/></svg>
+          <span class="sr-only">Detail Inspection</span>
+        </button>
+        <button class="icon-btn" id="themeToggle" type="button" aria-pressed="true"
+                title="Aktif/nonaktifkan tema One Piece">
+          <svg class="icon" aria-hidden="true"><use href="#i-theme"/></svg>
+          <span class="sr-only">Ganti tema</span>
+        </button>
+      </div>
+
+      <div class="graph is-running" id="graph" role="tabpanel" aria-labelledby="tab-mission">
+        <svg class="graph__wires" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true" focusable="false">
+          <defs>
+            <linearGradient id="wireGrad" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#E63946"/>
+              <stop offset="100%" stop-color="#F4A261"/>
+            </linearGradient>
+          </defs>
+          <path class="wire wire--red" d="M50 33 C50 50, 17 44, 17 71"/>
+          <path class="wire wire--gold" d="M50 33 C50 50, 50 44, 50 71"/>
+          <path class="wire wire--red" d="M50 33 C50 50, 83 44, 83 71"/>
+        </svg>
+
+        <article class="node node--lead is-busy" aria-label="Luffy, Orchestrator">
+          <div class="node__head">
+            <span class="node__avatar" aria-hidden="true">L</span>
+            <div>
+              <p class="node__name">Luffy</p>
+              <p class="node__role">Orchestrator</p>
+            </div>
+          </div>
+          <p class="node__status node__status--red" data-idle="mengawasi kru" data-busy="mendelegasikan tugas">
+            <span class="pulse" aria-hidden="true"></span><span class="node__status-text">mendelegasikan tugas</span>
+          </p>
+        </article>
+
+        <article class="node node--nami" aria-label="Nami, Navigator">
+          <div class="node__head">
+            <span class="node__avatar" aria-hidden="true">N</span>
+            <div>
+              <p class="node__name">Nami</p>
+              <p class="node__role">Navigator</p>
+            </div>
+          </div>
+          <p class="node__status node__status--gold" data-idle="peta siap" data-busy="memetakan rute">
+            <svg class="icon" aria-hidden="true"><use href="#i-logpose"/></svg>
+            <span class="node__status-text">memetakan rute</span>
+          </p>
+        </article>
+
+        <article class="node node--zoro" aria-label="Zoro, Refactorer">
+          <div class="node__head">
+            <span class="node__avatar" aria-hidden="true">Z</span>
+            <div>
+              <p class="node__name">Zoro</p>
+              <p class="node__role">Refactorer</p>
+            </div>
+          </div>
+          <p class="node__status node__status--green" data-idle="pedang terhunus" data-busy="menebas bug">
+            <svg class="icon" aria-hidden="true"><use href="#i-swords"/></svg>
+            <span class="node__status-text">menebas bug</span>
+          </p>
+        </article>
+
+        <article class="node node--franky" aria-label="Franky, DevOps">
+          <div class="node__head">
+            <span class="node__avatar" aria-hidden="true">F</span>
+            <div>
+              <p class="node__name">Franky</p>
+              <p class="node__role">DevOps</p>
+            </div>
+          </div>
+          <p class="node__status node__status--blue" data-idle="dermaga siaga" data-busy="membangun infrastruktur">
+            <svg class="icon" aria-hidden="true"><use href="#i-wrench"/></svg>
+            <span class="node__status-text">membangun infrastruktur</span>
+          </p>
+        </article>
+      </div>
+    </section>
+
+    <!-- ZONE 3 — chat + terminal, 50:50 -->
+    <div class="lower">
+
+      <section class="chat" aria-label="Crew Comms">
+        <header class="panel-head">
+          <svg class="icon icon--sm" aria-hidden="true"><use href="#i-anchor"/></svg>
+          <h2 class="panel-head__title">Crew Comms</h2>
+          <span class="panel-head__meta">6 kru · live</span>
+        </header>
+
+        <div class="chat__log" id="chatLog" role="log" aria-live="polite" aria-label="Percakapan kru">
+          <div class="msg msg--luffy">
+            <span class="msg__avatar" aria-hidden="true">L</span>
+            <div class="msg__body">
+              <div class="msg__head">
+                <span class="msg__name">Luffy</span><span class="msg__role">(Orchestrator)</span>
+                <span class="msg__badge">Kapten</span><span class="msg__time">12:04</span>
+              </div>
+              <p class="msg__text">Kru, kita berlayar! Rombak Herdr jadi <strong>Grand Line Edition</strong>. Nami, peta arsitekturnya dulu.</p>
+            </div>
+          </div>
+
+          <div class="msg msg--nami">
+            <span class="msg__avatar" aria-hidden="true">N</span>
+            <div class="msg__body">
+              <div class="msg__head">
+                <span class="msg__name">Nami</span><span class="msg__role">(Navigator)</span>
+                <span class="msg__badge">Arsitek</span><span class="msg__time">12:05</span>
+              </div>
+              <p class="msg__text">Rute siap: <strong>theme-onepiece.css</strong> untuk tokens, grid 4 zona 240 / 1fr / 300. Nol dependency baru.</p>
+            </div>
+          </div>
+
+          <div class="msg msg--zoro">
+            <span class="msg__avatar" aria-hidden="true">Z</span>
+            <div class="msg__body">
+              <div class="msg__head">
+                <span class="msg__name">Zoro</span><span class="msg__role">(Refactorer)</span>
+                <span class="msg__badge">Menebas</span><span class="msg__time">12:07</span>
+              </div>
+              <p class="msg__text">CSS lama kubersihkan. Diff <strong>−318 / +96</strong>. Tidak ada regresi.</p>
+            </div>
+          </div>
+
+          <div class="msg msg--franky">
+            <span class="msg__avatar" aria-hidden="true">F</span>
+            <div class="msg__body">
+              <div class="msg__head">
+                <span class="msg__name">Franky</span><span class="msg__role">(DevOps)</span>
+                <span class="msg__badge">Shipwright</span><span class="msg__time">12:09</span>
+              </div>
+              <p class="msg__text">SUUUUPER! <strong>docker compose up</strong> hijau dalam 23.4s. Sunny siap berlayar.</p>
+            </div>
+          </div>
+
+          <div class="msg msg--robin">
+            <span class="msg__avatar" aria-hidden="true">R</span>
+            <div class="msg__body">
+              <div class="msg__head">
+                <span class="msg__name">Robin</span><span class="msg__role">(Security &amp; Docs)</span>
+                <span class="msg__badge">Audit</span><span class="msg__time">12:10</span>
+              </div>
+              <p class="msg__text">Audit kontras rampung — seluruh teks lolos <strong>WCAG AA</strong>. Dokumentasi tema tersimpan.</p>
+            </div>
+          </div>
+
+          <div class="msg msg--usopp">
+            <span class="msg__avatar" aria-hidden="true">U</span>
+            <div class="msg__body">
+              <div class="msg__head">
+                <span class="msg__name">Usopp</span><span class="msg__role">(QA &amp; Testing)</span>
+                <span class="msg__badge">Sniper</span><span class="msg__time">12:12</span>
+              </div>
+              <p class="msg__text">3 edge-case kutembak: resize 720px, <strong>reduced-motion</strong>, dan tab overflow. Semua kena tepat sasaran.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="chat__foot">
+          <button class="denden" id="denden" type="button" aria-label="Den Den Mushi — notifikasi kru">
+            <svg viewBox="0 0 48 48" aria-hidden="true" focusable="false">
+              <g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M10 41c-3.5 0-4.5-2-4.5-4.5C5.5 31 10.5 28 17 28h11c6.5 0 10.5 3 10.5 8.5 0 2.5-1 4.5-4.5 4.5z"/>
+                <circle cx="30" cy="27" r="9"/>
+                <path d="M30 21.5a5.5 5.5 0 0 1 0 11 4 4 0 0 1 0-8"/>
+                <circle cx="13.5" cy="23" r="6"/>
+                <path d="m10.5 18-2.5-6M16.5 18l2.5-6"/>
+                <circle cx="7" cy="11" r="2.6" fill="currentColor" class="denden__eye"/>
+                <circle cx="20" cy="11" r="2.6" fill="currentColor" class="denden__eye"/>
+                <path d="M11.5 25c1.2 1.6 3.2 1.6 4.4 0M13.5 30.5c-2 2-5 1.4-6-1"/>
+              </g>
+            </svg>
+          </button>
+          <p class="sr-only" id="dendenLive" role="status" aria-live="polite"></p>
+
+          <form class="chat__form" id="chatForm" autocomplete="off">
+            <label class="sr-only" for="chatInput">Perintah untuk kru</label>
+            <input class="chat__input" id="chatInput" type="text" placeholder="Beri perintah ke kru..." maxlength="280">
+            <button class="btn-send" type="submit" title="Kirim perintah">
+              <svg class="icon icon--sm" aria-hidden="true"><use href="#i-send"/></svg>
+              <span class="sr-only">Kirim</span>
+            </button>
+          </form>
+        </div>
+      </section>
+
+      <section class="terminal" aria-label="Ship Terminal">
+        <header class="panel-head">
+          <span class="terminal__dots" aria-hidden="true"><span></span><span></span><span></span></span>
+          <svg class="icon icon--sm" aria-hidden="true"><use href="#i-terminal"/></svg>
+          <h2 class="panel-head__title">Ship Terminal</h2>
+          <span class="panel-head__meta">~/herdr · zsh</span>
+        </header>
+
+        <div class="terminal__log" id="termLog" role="log" aria-live="off" aria-label="Log terminal">
+          <div class="log-line"><span class="t-dim">$</span> herdr mission start <span class="t-key">--crew</span> <span class="t-str">strawhat</span></div>
+          <div class="log-line"><span class="log-line__ts">[12:04:01]</span> <span class="t-key">INFO</span>&nbsp; orchestrator  Luffy → delegating <span class="t-val">3 tasks</span></div>
+          <div class="log-line"><span class="log-line__ts">[12:04:02]</span> <span class="t-ok">OK</span>&nbsp;&nbsp;&nbsp; nami          route map written <span class="t-dim">(4 zones)</span></div>
+          <div class="log-line"><span class="log-line__ts">[12:04:03]</span> <span class="t-warn">RUN</span>&nbsp;&nbsp; zoro          eslint <span class="t-key">--fix</span> src/**</div>
+          <div class="log-line"><span class="log-line__ts">[12:04:05]</span> <span class="t-warn">WARN</span>&nbsp; zoro          2 warnings <span class="t-dim">(unused theme vars)</span></div>
+          <div class="log-line"><span class="log-line__ts">[12:04:06]</span> <span class="t-ok">OK</span>&nbsp;&nbsp;&nbsp; zoro          refactor complete · <span class="t-val">0 errors</span></div>
+          <div class="log-line"><span class="log-line__ts">[12:04:08]</span> <span class="t-warn">RUN</span>&nbsp;&nbsp; franky        docker compose up <span class="t-key">-d</span> --build</div>
+          <div class="log-line"><span class="log-line__ts">[12:04:31]</span> <span class="t-ok">OK</span>&nbsp;&nbsp;&nbsp; franky        build green in <span class="t-val">23.4s</span></div>
+          <div class="log-line"><span class="log-line__ts">[12:04:32]</span> <span class="t-key">INFO</span>&nbsp; sunny         integrity <span class="t-val">92%</span> · all systems seaworthy</div>
+          <div class="log-line"><span class="t-dim">$</span> <span class="cursor" aria-hidden="true"></span></div>
+        </div>
+
+        <div class="terminal__actions">
+          <button class="action-btn action-btn--sail" id="sailBtn" type="button" aria-pressed="true">
+            <span class="action-btn__label">SET SAIL</span>
+            <span class="action-btn__sub">Run</span>
+          </button>
+          <button class="action-btn action-btn--anchor" id="anchorBtn" type="button" aria-pressed="false">
+            <span class="action-btn__label">ANCHOR</span>
+            <span class="action-btn__sub">Pause</span>
+          </button>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <!-- ======================================================================
+       ZONE 4 — RIGHT INSPECTION PANEL (300px parchment)
+       ====================================================================== -->
+  <aside class="inspector" id="inspector" aria-label="Detail Inspection dan Status">
+    <div class="paper">
+      <header class="paper__head">
+        <svg class="icon icon--sm" aria-hidden="true"><use href="#i-logpose"/></svg>
+        <span class="paper__eyebrow">Detail Inspection</span>
+        <span class="paper__eyebrow paper__eyebrow--right">Log Pose 1172</span>
+      </header>
+      <h2 class="paper__title">Grand Line Ledger</h2>
+
+      <div class="paper__body">
+        <section aria-labelledby="missionLabel">
+          <p class="section-rule" id="missionLabel">Misi Aktif</p>
+          <div class="mission__row" style="margin-top:6px">
+            <p class="mission__name" id="missionName">Refactor Ship System</p>
+            <span class="badge badge--run" id="missionBadge">run</span>
+          </div>
+          <p class="mission__meta"><span>Kru: 6</span><span>ETA: 14m</span><span id="missionState">Berlayar</span></p>
+        </section>
+
+        <section aria-labelledby="integrityLabel">
+          <div class="health__top">
+            <span class="section-rule" id="integrityLabel">Sunny&rsquo;s Integrity</span>
+            <span class="health__val" id="integrityVal">92%</span>
+          </div>
+          <div class="bar" role="progressbar" aria-labelledby="integrityLabel" aria-valuemin="0" aria-valuemax="100" aria-valuenow="92" id="integrityBar">
+            <div class="bar__fill" id="integrityFill" style="--val:92%"></div>
+          </div>
+        </section>
+
+        <section aria-labelledby="chartLabel">
+          <p class="section-rule" id="chartLabel">Kartografi &amp; Log Pose</p>
+          <div class="chart" style="margin-top:6px">
+            <svg class="map" viewBox="0 0 128 84" role="img" aria-label="Peta Grand Line bergaya kartografi kuno">
+              <defs>
+                <pattern id="mapGrid" width="16" height="16" patternUnits="userSpaceOnUse">
+                  <path d="M16 0H0v16" fill="none" stroke="rgba(140,109,70,.22)" stroke-width=".7"/>
+                </pattern>
+              </defs>
+              <rect width="128" height="84" fill="url(#mapGrid)" opacity=".7"/>
+              <path d="M8 30c8-9 22-8 28-2s2 16-8 18-24-5-20-16z" fill="rgba(140,109,70,.20)" stroke="#8C6D46" stroke-width=".9"/>
+              <path d="M58 12c9-4 20 1 22 8s-6 13-15 12-16-6-15-13 4-6 8-7z" fill="rgba(140,109,70,.24)" stroke="#8C6D46" stroke-width=".9"/>
+              <path d="M74 52c7-6 20-3 22 5s-8 15-17 13-14-9-11-14 3-2 6-4z" fill="rgba(140,109,70,.18)" stroke="#8C6D46" stroke-width=".9"/>
+              <path d="M106 26c4-2 9 2 8 7s-7 6-10 2-2-7 2-9z" fill="rgba(140,109,70,.26)" stroke="#8C6D46" stroke-width=".9"/>
+              <path d="M20 56c10 6 26-6 34 0s18 10 30 4 20-4 26 2" fill="none" stroke="#8C6D46" stroke-width="1" stroke-dasharray="3 4"/>
+              <circle cx="24" cy="54" r="2.4" fill="#E63946"/>
+              <circle cx="54" cy="58" r="2.4" fill="#C77B3E"/>
+              <circle cx="88" cy="61" r="2.4" fill="#8C6D46"/>
+              <circle cx="112" cy="64" r="2.4" fill="#2A9D8F"/>
+              <path d="M96 20l3 7 7 1-5 5 1 7-6-3-6 3 1-7-5-5 7-1z" fill="none" stroke="#8C6D46" stroke-width=".8"/>
+              <text x="64" y="79" text-anchor="middle" font-family="Cinzel, serif" font-size="6.5" letter-spacing="2.4" fill="#5C4938">GRAND LINE</text>
+            </svg>
+
+            <div class="compass" aria-hidden="true">
+              <svg viewBox="0 0 100 100">
+                <circle cx="50" cy="50" r="44" fill="rgba(244,236,216,.35)" stroke="#8C6D46" stroke-width="1.4"/>
+                <circle cx="50" cy="50" r="36" fill="none" stroke="#8C6D46" stroke-width=".8" stroke-dasharray="2 3"/>
+                <path d="M50 4v5M50 91v5M4 50h5M91 50h5" stroke="#5C4938" stroke-width="1.2"/>
+                <text x="50" y="16" text-anchor="middle" font-family="Cinzel, serif" font-size="8" fill="#5C4938">N</text>
+                <text x="50" y="92" text-anchor="middle" font-family="Cinzel, serif" font-size="7" fill="#8C6D46">S</text>
+                <text x="88" y="53" text-anchor="middle" font-family="Cinzel, serif" font-size="7" fill="#8C6D46">E</text>
+                <text x="12" y="53" text-anchor="middle" font-family="Cinzel, serif" font-size="7" fill="#8C6D46">W</text>
+                <g class="compass__needle">
+                  <path d="M50 14 56 50 50 46 44 50z" fill="#E63946"/>
+                  <path d="M50 86 44 50 50 54 56 50z" fill="#C77B3E"/>
+                </g>
+                <circle cx="50" cy="50" r="3" fill="#2B2118"/>
+              </svg>
+            </div>
+          </div>
+        </section>
+
+        <section aria-labelledby="bountyLabel">
+          <p class="section-rule" id="bountyLabel">Bounty Progress</p>
+
+          <div class="metric" style="margin-top:7px">
+            <div class="metric__row"><span>Progres tugas</span><span class="metric__val" id="taskPct">68%</span></div>
+            <div class="bar bar--gold" role="progressbar" aria-label="Progres tugas" aria-valuemin="0" aria-valuemax="100" aria-valuenow="68">
+              <div class="bar__fill" id="taskFill" style="--val:68%"></div>
+            </div>
+          </div>
+
+          <div class="metric" style="margin-top:9px">
+            <div class="metric__row"><span>System Integrity</span><span class="metric__val" id="sysPct">92%</span></div>
+            <div class="bar" role="progressbar" aria-label="System Integrity" aria-valuemin="0" aria-valuemax="100" aria-valuenow="92">
+              <div class="bar__fill" id="sysFill" style="--val:92%"></div>
+            </div>
+          </div>
+        </section>
+      </div>
+
+      <span class="paper__stamp" aria-hidden="true">GRAND<br>LINE<br>°</span>
+    </div>
+  </aside>
+</div>
+
+<script>
+(() => {
+  "use strict";
+  const $ = (s, r = document) => r.querySelector(s);
+  const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+  const reduceMotion = matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  /* ---- Belly bounty counter -------------------------------------------- */
+  const bellyEl = $("#belly");
+  let belly = 82_500_000, bellyRaf = 0;
+  const fmt = n => "฿\u00A0" + Math.round(n).toLocaleString("id-ID");
+
+  function addBelly(amount) {
+    const from = belly;
+    belly += amount;
+    cancelAnimationFrame(bellyRaf);
+    bellyEl.classList.remove("is-bump");
+    void bellyEl.offsetWidth;
+    bellyEl.classList.add("is-bump");
+    if (reduceMotion) { bellyEl.textContent = fmt(belly); return; }
+    const t0 = performance.now();
+    const tick = t => {
+      const p = Math.min(1, (t - t0) / 500);
+      bellyEl.textContent = fmt(from + (belly - from) * (1 - (1 - p) ** 3));
+      if (p < 1) bellyRaf = requestAnimationFrame(tick);
+    };
+    bellyRaf = requestAnimationFrame(tick);
+  }
+
+  /* ---- Metrics --------------------------------------------------------- */
+  let taskPct = 68, integrity = 92;
+  const taskFill = $("#taskFill"), taskVal = $("#taskPct");
+  const sysFill = $("#sysFill"), sysVal = $("#sysPct");
+  const integrityFill = $("#integrityFill"), integrityVal = $("#integrityVal"), integrityBar = $("#integrityBar");
+
+  function setMetric(kind, value) {
+    const v = Math.max(0, Math.min(100, Math.round(value)));
+    if (kind === "task") { taskPct = v; taskFill.style.setProperty("--val", v + "%"); taskVal.textContent = v + "%"; taskFill.parentElement.setAttribute("aria-valuenow", v); }
+    if (kind === "sys") {
+      integrity = v;
+      [sysFill, integrityFill].forEach(el => el.style.setProperty("--val", v + "%"));
+      sysVal.textContent = v + "%";
+      integrityVal.textContent = v + "%";
+      integrityBar.setAttribute("aria-valuenow", v);
+      sysFill.parentElement.setAttribute("aria-valuenow", v);
+    }
+  }
+
+  /* ---- Chat ------------------------------------------------------------ */
+  const chatLog = $("#chatLog"), chatForm = $("#chatForm"), chatInput = $("#chatInput");
+  const denden = $("#denden"), dendenLive = $("#dendenLive");
+  const CREW = {
+    luffy: { name: "Luffy", role: "(Orchestrator)", badge: "Kapten", initial: "L" },
+    nami:  { name: "Nami",  role: "(Navigator)",    badge: "Arsitek", initial: "N" },
+    zoro:  { name: "Zoro",  role: "(Refactorer)",   badge: "Menebas", initial: "Z" },
+    franky:{ name: "Franky",role: "(DevOps)",       badge: "Shipwright", initial: "F" },
+    robin: { name: "Robin", role: "(Security & Docs)", badge: "Audit", initial: "R" },
+    usopp: { name: "Usopp", role: "(QA & Testing)", badge: "Sniper", initial: "U" },
+    user:  { name: "Kapten", role: "(You)",          badge: "", initial: "★" }
+  };
+
+  function stamp() {
+    return new Date().toLocaleTimeString("id-ID", { hour: "2-digit", minute: "2-digit" });
+  }
+
+  function addMessage(who, text) {
+    const c = CREW[who] || CREW.user;
+    const el = document.createElement("div");
+    el.className = "msg msg--" + who;
+    const body = document.createElement("div"); body.className = "msg__body";
+
+    const head = document.createElement("div"); head.className = "msg__head";
+    const name = document.createElement("span"); name.className = "msg__name"; name.textContent = c.name;
+    const role = document.createElement("span"); role.className = "msg__role"; role.textContent = c.role;
+    const time = document.createElement("span"); time.className = "msg__time"; time.textContent = stamp();
+    head.append(name, role);
+    if (c.badge) {
+      const b = document.createElement("span"); b.className = "msg__badge"; b.textContent = c.badge;
+      head.append(b);
+    }
+    head.append(time);
+
+    const p = document.createElement("p"); p.className = "msg__text"; p.textContent = text;
+
+    const avatar = document.createElement("span"); avatar.className = "msg__avatar";
+    avatar.setAttribute("aria-hidden", "true"); avatar.textContent = c.initial;
+
+    body.append(head, p);
+    el.append(avatar, body);
+    chatLog.append(el);
+    chatLog.scrollTop = chatLog.scrollHeight;
+    ringDenden();
+  }
+
+  let ringTimer;
+  function ringDenden() {
+    denden.classList.remove("is-ringing");
+    void denden.offsetWidth;
+    denden.classList.add("is-ringing");
+    dendenLive.textContent = "Pesan baru dari kru.";
+    clearTimeout(ringTimer);
+    ringTimer = setTimeout(() => {
+      denden.classList.remove("is-ringing");
+      dendenLive.textContent = "";
+    }, 1500);
+  }
+
+  chatForm.addEventListener("submit", e => {
+    e.preventDefault();
+    const text = chatInput.value.trim();
+    if (!text) return;
+    addMessage("user", text);
+    chatInput.value = "";
+    addBelly(1_500_000);
+    if (/\bcommit\b/i.test(text)) {
+      addBelly(5_000_000);
+      log('<span class="log-line__ts">[' + ts() + ']</span> <span class="t-ok">OK</span>&nbsp;&nbsp;&nbsp; git           commit merged · belly <span class="t-val">+5.000.000</span>');
+      addMessage("zoro", "Commit kuterima. Diff bersih, tidak ada konflik.");
+    }
+    setTimeout(() => addMessage("luffy", "Siap, kapten! \u201C" + text.slice(0, 60) + "\u201D \u2192 kuteruskan ke kru."), 500);
+    setTimeout(() => addMessage("zoro", "Catat. Aku mulai dari diff terkecil."), 1200);
+  });
+
+  /* ---- Terminal stream ------------------------------------------------- */
+  const termLog = $("#termLog");
+  const graph = $("#graph");
+  const sailBtn = $("#sailBtn"), anchorBtn = $("#anchorBtn");
+  const missionState = $("#missionState"), missionBadge = $("#missionBadge");
+  let running = true, streamTimer = null, step = 0;
+
+  function log(html) {
+    const row = document.createElement("div");
+    row.className = "log-line";
+    row.innerHTML = html;
+    termLog.append(row);
+    termLog.scrollTop = termLog.scrollHeight;
+  }
+
+  const PIPELINE = [
+    ["luffy", '<span class="t-warn">RUN</span>&nbsp;&nbsp; luffy         broadcast plan → nami, zoro, franky'],
+    ["nami", '<span class="t-ok">OK</span>&nbsp;&nbsp;&nbsp; nami          dependency graph · <span class="t-val">0 cycles</span>'],
+    ["zoro", '<span class="t-warn">RUN</span>&nbsp;&nbsp; zoro          tsc --noEmit <span class="t-key">--pretty</span>'],
+    ["zoro", '<span class="t-ok">OK</span>&nbsp;&nbsp;&nbsp; zoro          types clean · <span class="t-val">0 errors</span>'],
+    ["franky", '<span class="t-warn">RUN</span>&nbsp;&nbsp; franky        docker build <span class="t-key">-t</span> sunny:grandline .'],
+    ["franky", '<span class="t-ok">OK</span>&nbsp;&nbsp;&nbsp; franky        image built · <span class="t-val">SUUUUPER</span>'],
+    ["", '<span class="t-key">INFO</span>&nbsp; sunny         voyage complete · belly reward <span class="t-val">+2.500.000</span>']
+  ];
+
+  const NODE_BY_AGENT = {
+    luffy: ".node--lead",
+    nami: ".node--nami",
+    zoro: ".node--zoro",
+    franky: ".node--franky"
+  };
+
+  /** Show exactly one agent as engaged, the rest on standby. */
+  function setAgentStatus(agent) {
+    Object.entries(NODE_BY_AGENT).forEach(([key, sel]) => {
+      const node = $(sel);
+      const status = node.querySelector(".node__status");
+      const txt = status.querySelector(".node__status-text");
+      const busy = running && key === agent;
+      node.classList.toggle("is-busy", busy && key === "luffy");
+      txt.textContent = busy ? status.dataset.busy : status.dataset.idle;
+    });
+  }
+
+  function ts() {
+    return new Date().toLocaleTimeString("id-ID", { hour12: false });
+  }
+
+  function stopStream() {
+    clearInterval(streamTimer);
+    streamTimer = null;
+  }
+
+  function appendCursor() {
+    const cur = document.createElement("div");
+    cur.className = "log-line";
+    cur.innerHTML = '<span class="t-dim">$</span> <span class="cursor" aria-hidden="true"></span>';
+    termLog.append(cur);
+  }
+
+  function setRunning(on) {
+    running = on;
+    graph.classList.toggle("is-running", on);
+    graph.classList.toggle("is-paused", !on);
+    setAgentStatus(on ? "luffy" : "");
+    sailBtn.setAttribute("aria-pressed", String(on));
+    anchorBtn.setAttribute("aria-pressed", String(!on));
+    missionBadge.textContent = on ? "run" : "pause";
+    missionBadge.classList.toggle("badge--run", on);
+    missionBadge.classList.toggle("badge--pause", !on);
+    missionState.textContent = on ? "Berlayar" : "Berlabuh";
+    if (!on) stopStream();
+  }
+
+  function sail() {
+    if (running && streamTimer) return;
+    setRunning(true);
+    log('<span class="t-dim">$</span> herdr mission resume <span class="t-key">--crew</span> <span class="t-str">strawhat</span>');
+    appendCursor();
+    startStream();
+  }
+
+  function startStream() {
+    stopStream();
+    let i = 0;
+    streamTimer = setInterval(() => {
+      if (i >= PIPELINE.length) {
+        stopStream();
+        setMetric("task", Math.min(100, taskPct + 4));
+        setMetric("sys", Math.min(100, integrity + 1));
+        addBelly(2_500_000);
+        setAgentStatus("");
+        addMessage("franky", "Voyage selesai! Build hijau, belly +฿2.500.000. SUUUUPER!");
+        return;
+      }
+      const [agent, html] = PIPELINE[i];
+      setAgentStatus(agent);
+      log('<span class="log-line__ts">[' + ts() + ']</span> ' + html);
+      if (i === PIPELINE.length - 1) appendCursor();
+      i++;
+    }, 900);
+  }
+
+  sailBtn.addEventListener("click", sail);
+  anchorBtn.addEventListener("click", () => {
+    if (!running) return;
+    setRunning(false);
+    log('<span class="log-line__ts">[' + ts() + ']</span> <span class="t-warn">PAUSE</span> anchor dropped · pipeline dijeda');
+    appendCursor();
+    addBelly(250_000);
+  });
+
+  /* ---- Session tabs ---------------------------------------------------- */
+  const tabs = $$('.tabs .tab').filter(t => t.id !== "tab-add");
+  const missionName = $("#missionName");
+  tabs.forEach(tab => {
+    tab.addEventListener("click", () => {
+      tabs.forEach(t => {
+        const active = t === tab;
+        t.setAttribute("aria-selected", String(active));
+        t.tabIndex = active ? 0 : -1;
+      });
+      missionName.textContent = tab.dataset.mission;
+      graph.setAttribute("aria-labelledby", tab.id);
+      log('<span class="t-key">INFO</span>&nbsp; session switch → <span class="t-str">' + tab.dataset.mission + '</span>');
+    });
+    tab.addEventListener("keydown", e => {
+      if (e.key !== "ArrowRight" && e.key !== "ArrowLeft") return;
+      e.preventDefault();
+      const idx = tabs.indexOf(tab);
+      const next = tabs[(idx + (e.key === "ArrowRight" ? 1 : tabs.length - 1)) % tabs.length];
+      next.focus();
+      next.click();
+    });
+  });
+
+  $("#tab-add").addEventListener("click", () => {
+    log('<span class="t-key">INFO</span>&nbsp; new voyage scaffolded <span class="t-dim">(Mission: New World)</span>');
+    addMessage("nami", "Sesi baru siap. Kasih nama misinya, kapten.");
+  });
+
+  /* ---- Theme switcher -------------------------------------------------- */
+  const themeToggle = $("#themeToggle");
+  const THEMES = ["onepiece-grandline", "herdr-dark"];
+  themeToggle.addEventListener("click", () => {
+    const root = document.documentElement;
+    const next = THEMES[(THEMES.indexOf(root.dataset.theme) + 1) % THEMES.length];
+    root.dataset.theme = next;
+    const on = next === "onepiece-grandline";
+    themeToggle.setAttribute("aria-pressed", String(on));
+    themeToggle.title = on ? "Tema One Piece aktif — klik untuk kembali ke Herdr dark" : "Tema Herdr dark — klik untuk Grand Line Edition";
+  });
+
+  /* ---- Inspector drawer (<=1024px) ------------------------------------ */
+  const inspector = $("#inspector"), inspectorToggle = $("#inspectorToggle");
+  inspectorToggle.addEventListener("click", () => {
+    const open = inspector.classList.toggle("is-open");
+    inspectorToggle.setAttribute("aria-expanded", String(open));
+  });
+  addEventListener("keydown", e => {
+    if (e.key === "Escape" && inspector.classList.contains("is-open")) {
+      inspector.classList.remove("is-open");
+      inspectorToggle.setAttribute("aria-expanded", "false");
+      inspectorToggle.focus();
+    }
+  });
+
+  chatLog.addEventListener("scroll", () => {
+    chatLog.classList.toggle("is-scrolled", chatLog.scrollTop > 4);
+  });
+
+  /* ---- Boot ------------------------------------------------------------ */
+  setRunning(true);
+  chatLog.scrollTop = chatLog.scrollHeight;
+  chatLog.classList.toggle("is-scrolled", chatLog.scrollTop > 4);
+  if (!reduceMotion) startStream();
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,167 @@
+{
+  "id": "root",
+  "type": "column",
+  "background": "canvas",
+  "traffic_lights": [
+    12,
+    16
+  ],
+  "divider": {
+    "width": 1,
+    "color": "border"
+  },
+  "children": [
+    {
+      "id": "topbar",
+      "type": "block",
+      "size": {
+        "px": 38
+      },
+      "window_drag": true,
+      "content": {
+        "mod": "onepiece-nav"
+      }
+    },
+    {
+      "id": "body",
+      "type": "row",
+      "padding": 8,
+      "gap": 8,
+      "divider": {
+        "width": 1,
+        "color": "border"
+      },
+      "children": [
+        {
+          "id": "sidebar",
+          "type": "column",
+          "size": {
+            "px": 240
+          },
+          "min": 180,
+          "max": 360,
+          "background": "chrome",
+          "children": [
+            {
+              "id": "sb",
+              "type": "block",
+              "size": {
+                "weight": 1
+              },
+              "content": {
+                "mod": "onepiece-sidebar"
+              }
+            }
+          ]
+        },
+        {
+          "id": "main",
+          "type": "column",
+          "gap": 6,
+          "children": [
+            {
+              "id": "alur",
+              "type": "block",
+              "size": {
+                "px": 212
+              },
+              "content": {
+                "mod": "onepiece-alur"
+              }
+            },
+            {
+              "id": "stage",
+              "type": "row",
+              "gap": 6,
+              "children": [
+                {
+                  "id": "chat",
+                  "type": "block",
+                  "size": {
+                    "weight": 1
+                  },
+                  "content": {
+                    "mod": "onepiece-chat"
+                  }
+                },
+                {
+                  "id": "term",
+                  "type": "block",
+                  "content": {
+                    "tab": "active",
+                    "pane": {
+                      "header": {
+                        "content": {
+                          "mod": "pane"
+                        },
+                        "reveal": "always",
+                        "height": 30,
+                        "position": "top"
+                      },
+                      "background": "background",
+                      "border": {
+                        "width": 1,
+                        "color": "border"
+                      },
+                      "focus": {
+                        "width": 1,
+                        "color": "accent"
+                      },
+                      "radius": 10,
+                      "gap": 8,
+                      "lone": true
+                    }
+                  },
+                  "size": {
+                    "weight": 1
+                  }
+                }
+              ]
+            },
+            {
+              "id": "actions",
+              "type": "block",
+              "size": {
+                "px": 56
+              },
+              "content": {
+                "mod": "onepiece-actions"
+              }
+            }
+          ]
+        },
+        {
+          "id": "panel",
+          "type": "column",
+          "size": {
+            "px": 300
+          },
+          "min": 240,
+          "max": 420,
+          "children": [
+            {
+              "id": "inspector",
+              "type": "block",
+              "size": {
+                "weight": 1
+              },
+              "content": {
+                "mod": "onepiece-inspector"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "status",
+      "type": "block",
+      "size": {
+        "px": 28
+      },
+      "content": {
+        "mod": "workspace-status"
+      }
+    }
+  ]
+}
