@@ -72,6 +72,11 @@ Balik ke layout lama: `herdr-app do layout.switch --name dev-layout`.
 - Thema per-layout juga tersimpan di `~/.config/herdr-app/layouts/.state/<layout>.json`
   (`theme.dark` / `theme.light`). `settings.json` adalah default untuk layout tanpa override.
 - Warna ANSI terminal ikut tema; TUI di dalam pane (OpenCode dll.) punya tema sendiri.
+- Palet light menyimpang dari rencana di tiga titik, semuanya karena kontras: merah
+  `#E63946` (3.54:1 di parchment) → `#B3261E` (5.55:1), hijau `#2A9D8F` (2.82:1) →
+  `#1F6F63` (5.08:1). Sebaliknya `border` light sekarang memakai `frame` rencana
+  `#8C6D46` (4.06:1) — versi sebelumnya `#C9B68C` hanya 1.69:1, di bawah 3:1 untuk
+  batas komponen UI.
 - `~/.config/herdr-app/themes/<nama>.json` = id tema; pakai `app.theme` untuk ganti.
 - `layouts/.state/<layout>.json` menyimpan `theme.{light,dark}` dan override `nodes.*.size`
   (kalau blok melar, hapus entri `nodes` itu — app menulisnya dari geometri terakhir).
