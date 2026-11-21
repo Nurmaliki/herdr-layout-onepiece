@@ -33,14 +33,26 @@ cp "$APP_HOME/settings.json" "$TMP/settings.json" 2>/dev/null || true
 restore() {
   if [ -f "$TMP/settings.json" ]; then
     want="$(field 'd.get("theme","")' < "$TMP/settings.json")"
-    # The app flushes its own settings.json asynchronously; retry until the
-    # backup sticks so a test run never leaves the user on the test theme.
-    for _ in 1 2 3; do
-      cp "$TMP/settings.json" "$APP_HOME/settings.json"
-      herdr-app do app.theme --name "$want" >/dev/null 2>&1
-      sleep 2
-      [ "$(field 'd.get("theme","")' < "$APP_HOME/settings.json")" = "$want" ] && break
-    done
+    # Put back only theme/appearance, atomically (tmp + rename): the app flushes
+    # its own settings.json, so a plain `cp` can clobber a newer write.
+    python3 - "$APP_HOME/settings.json" "$TMP/settings.json" "$APP_HOME/settings.json.test" <<'PY'
+import json, os, sys
+path, src, tmp = sys.argv[1:4]
+want = json.load(open(src))
+cur = json.load(open(path)) if os.path.exists(path) else {}
+for key in ("theme", "appearance"):
+    if key in want:
+        cur[key] = want[key]
+    else:
+        cur.pop(key, None)
+open(tmp, "w").write(json.dumps(cur, indent=2) + "\n")
+os.replace(tmp, path)
+PY
+    herdr-app do app.theme --name "$want" >/dev/null 2>&1
+    sleep 1
+    got="$(field 'd.get("theme","")' < "$APP_HOME/settings.json" 2>/dev/null || echo)"
+    # Never leave the user on the test theme silently: say so and fail the run.
+    [ "$got" = "$want" ] || { echo "WARN  settings.json tidak kembali ke theme=$want (sekarang: ${got:-?})" >&2; FAILS=$((FAILS + 1)); }
   fi
   herdr-app do layout.switch --name "$LAYOUT" >/dev/null 2>&1
   rm -rf "$TMP"
@@ -49,13 +61,21 @@ trap restore EXIT
 
 # Appearance decides the theme slot, so set both exactly like the ☀/☾ handler does.
 apply() {
-  python3 - "$APP_HOME/settings.json" "$1" "$2" <<'PY'
-import json, sys
-path, appearance, theme = sys.argv[1:4]
-d = json.load(open(path))
+  for _ in 1 2 3; do
+    python3 - "$APP_HOME/settings.json" "$1" "$2" "$APP_HOME/settings.json.test" <<'PY' && break
+import json, os, sys
+path, appearance, theme, tmp = sys.argv[1:5]
+text = open(path).read() if os.path.exists(path) else "{}"
+d = json.loads(text)
 d["appearance"], d["theme"] = appearance, theme
-open(path, "w").write(json.dumps(d, indent=2) + "\n")
+open(tmp, "w").write(json.dumps(d, indent=2) + "\n")
+if os.path.exists(path) and open(path).read() != text:
+    os.unlink(tmp)
+    sys.exit(11)  # the app wrote in between: retry
+os.replace(tmp, path)
 PY
+    sleep 1
+  done
   herdr-app do app.theme --name "$2" >/dev/null 2>&1
   sleep 2
 }

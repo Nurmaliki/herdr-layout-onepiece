@@ -49,6 +49,11 @@ Zona yang terpasang:
 | tombol SET SAIL / ANCHOR di bawah terminal | `onepiece-actions` |
 | panel kanan 300px: integrity, peta, Log Pose, bounty | `onepiece-inspector` |
 
+Zona menyesuaikan lebar jendela: runtime tidak punya media query, jadi topbar
+(`onepiece-nav`) memantau lebarnya sendiri dan menyembunyikan inspector di bawah
+1200px, lalu alur di bawah 980px (sidebar tetap). Alur juga tidak lagi terkunci
+212px — bisa 140–260px.
+
 Balik ke layout lama: `herdr-app do layout.switch --name dev-layout`.
 
 ## Isi
@@ -58,6 +63,7 @@ Balik ke layout lama: `herdr-app do layout.switch --name dev-layout`.
 | `onepiece-grandline.json` | tema gelap: navy `#0B132B` + emas |
 | `onepiece-grandline-light.json` | tema parchment `#F4ECD8` + tinta `#1C2541` |
 | `install-theme.sh` | pemasang (dry-run, uninstall, pilih varian, validasi, backup) |
+| `crew.sh` | panggil kru: `./crew.sh nami "petakan skema DB"` (persona + tugas, tunggu pane siap) |
 | `test-install.sh` | self-check pemasang + kontras AA kedua tema |
 | `index.html`, `theme-onepiece.css` | preview desain 4 zona (bukan tema Herdr) |
 | `layouts/onepiece-grandline.json` | susunan 4 zona (topbar, sidebar, alur, terminal, inspector) |
@@ -95,9 +101,9 @@ Balik ke layout lama: `herdr-app do layout.switch --name dev-layout`.
   `settings.json` (`theme` + `appearance`) lalu `app.theme` — perlu dua-duanya, karena
   pilihan Appearance yang menentukan slot tema. Kalau kamu ubah Appearance manual di
   Settings, cukup klik tombol ini sekali lagi supaya sinkron.
-- Crew chat = stream bubble per agen: tiap 5 detik membaca `hc read <agent> --lines 8 --json`,
-  membuang ANSI/box/TUI chrome, menggabungkan baris wrap jadi satu bubble, dan menyimpan
-  40 pesan terakhir di `localStorage` (`onepiece.chat.log`). Urutannya **terbaru di atas**
+- Crew chat = stream bubble per agen: tiap 2 detik membaca `hc read <agent> --lines 40 --json`,
+  membuang ANSI/box/TUI chrome, menggabungkan baris wrap jadi satu bubble (potong 600
+  karakter), dan menyimpan 200 pesan terakhir di `localStorage` (`onepiece.chat.log`). Urutannya **terbaru di atas**
   karena runtime memegang posisi scroll sendiri. Jam = saat bubble pertama terlihat, bukan
   waktu asli pesan. Klik bubble = fokus pane agen itu.
 - Ikon: `svg()` = mask satu warna (di-tint tema), `image()` = SVG/PNG penuh warna.
@@ -107,7 +113,16 @@ Balik ke layout lama: `herdr-app do layout.switch --name dev-layout`.
   `~/.config/herdr-core/templates/onepiece-<kru>.md` (frontmatter `name`/`description`/
   `command`, body = `system_prompt`): `hc run --bg --name usopp onepiece-usopp "uji modul X"`.
   Agent-nya `opencode`; ganti dengan `CREW_AGENT=pi ./install-theme.sh`. Sudah diuji nyata —
-  agent menerima persona + task sebagai pesan pertama.
+  keenam kru menjawab sesuai perannya dan kru saling bicara lewat `hc send` (Usopp → Luffy,
+  Robin → pemanggil terbukti). Pakai `./crew.sh <kru> "<tugas>"` untuk memanggil: pane
+  dinyalakan dulu, lalu persona+tugas dikirim sampai hc menerimanya. `hc run --bg
+  onepiece-<kru> "…"` sering berakhir `{"sent":false}` (pane belum "settled"), dan
+  `hc send` polos ke agen yang sudah jalan **membuang personanya** — jadi jangan dipakai
+  untuk tugas pertama.
+- Kru berkomunikasi sebagai **agent Herdr**, bukan sesi di terminal yang sama: tiap kru =
+  terminal + nama sendiri (alamat `hc send <nama>`), dan templatenya melarang memecah tugas
+  ke subagent/task tool dalam terminal kru itu. Roster dicetak statis di template karena
+  `hc ls --json` tidak memuat `name` untuk terminal hidup (pakai `hc get <nama>` untuk cek).
 - Avatar resmi API: `OPENAI_IMAGE_KEY=sk-... python3 make-avatars.py` (`api.openai.com`, `gpt-image-1`).
 - Gambar avatar **tidak di-commit** (`.gitignore`): materi berhak cipta Eiichiro Oda/Toei,
   untuk pemakaian pribadi di mesin sendiri; repo hanya berisi skrip pengambilnya.
@@ -115,11 +130,15 @@ Balik ke layout lama: `herdr-app do layout.switch --name dev-layout`.
   (dev-layout dsb.) ikut berganti terang/gelap. Kalau tidak mau, ganti tema lewat
   `./install-theme.sh` saja.
 - Crew chat bukan transkrip: yang tampil kalimat **terakhir** yang terbaca di terminal
-  agent, jadi sesekali bisa kena baris TUI yang aneh (progress/status). Itu batas
-  heuristiknya, bukan bug.
+  agent. Baris spinner (braille) dan footer TUI (`… +`) dibuang, tapi sesekali masih bisa
+  kena baris progress/status. Jam = saat baris pertama terlihat (meleset ≤2 detik), karena
+  `hc read` tidak membawa waktu asli. Itu batas heuristiknya, bukan bug.
+- Status pane (OSC 7501, plugin `~/.config/opencode/plugins/herdr-osc7501.js`) dikirim ke
+  **semua** pane opencode di proyek itu, bukan cuma yang terbaru. Satu `opencode serve
+  --service` melayani semua pane, jadi statusnya tetap sama untuk semuanya.
 - `./test-fungsi.sh` butuh window Herdr terbuka + ImageMagick (`magick`). Titik sampel
   pakai persentase, jadi tahan resize; kalau jendela dikecilkan sangat sempit, panel
-  inspector bisa tidak ada di 92% lebar dan cek itu gagal.
+  inspector disembunyikan otomatis (di bawah 1200px) dan cek itu gagal.
 - Yang tidak bisa dites skrip: klik mouse literal (`on_click`). Itu butuh izin
   Accessibility untuk Terminal; skrip hanya menguji command yang dipanggil tombolnya.
 - Yang tidak diporting: font Cinzel (tidak terpasang), animasi garis dashed

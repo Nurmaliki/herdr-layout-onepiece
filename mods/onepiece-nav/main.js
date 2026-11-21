@@ -33,6 +33,21 @@ export default class OnepieceNav extends View {
     });
   }
 
+  // The layout has no media queries; hiding a whole zone is the only responsive
+  // knob. The topbar spans the window, so its width is the window width.
+  // ponytail: two fixed breakpoints, not per-zone negotiation — move to a real
+  // size query in the runtime if it grows one.
+  fit(width) {
+    const hidden = width < 980 ? ["panel", "alur"] : width < 1200 ? ["panel"] : [];
+    const was = this.off ?? (this.off = {});
+    for (const id of ["panel", "alur"]) {
+      const off = hidden.includes(id);
+      if (was[id] === off) continue;
+      was[id] = off;
+      run(off ? "layout.hide" : "layout.show", { id });
+    }
+  }
+
   render() {
     const t = theme();
     const f = focused();
@@ -40,6 +55,7 @@ export default class OnepieceNav extends View {
     const tabs = space?.tabs ?? [];
     return h_flex()
       .size_full()
+      .on_size_change(({ width }) => this.fit(width))
       .px(12)
       .gap(10)
       .items_center()

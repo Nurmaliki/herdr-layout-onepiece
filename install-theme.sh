@@ -36,18 +36,35 @@ done
 
 if [ "$MODE" = uninstall ]; then
   [ -f "$SETTINGS" ] || { echo "no settings.json in $APP_HOME" >&2; exit 1; }
-  last="$(ls -1t "$SETTINGS".bak-onepiece-* 2>/dev/null | head -n1 || true)"
-  [ -n "$last" ] || { echo "no backup of settings.json found" >&2; exit 1; }
   if command -v herdr-app >/dev/null 2>&1; then
     cur="$(herdr-app status 2>/dev/null | python3 -c 'import json,sys;print(json.load(sys.stdin).get("layout",""))' 2>/dev/null || true)"
     if [ "$cur" = "$LAYOUT" ]; then herdr-app do layout.switch --name dev-layout >/dev/null 2>&1 || true; fi
   fi
-  cp "$last" "$SETTINGS"
+  # Only the keys this installer touched come back, from the one backup taken
+  # before its first write. A timestamped backup is not a restore source: each
+  # one already baked in an onepiece theme, so restoring it wholesale would drop
+  # the theme file we delete below and every other setting changed since.
+  orig="$SETTINGS.bak-onepiece-orig"
+  python3 - "$SETTINGS" "$orig" "$SETTINGS.tmp" <<'PY'
+import json, os, sys
+path, orig, tmp = sys.argv[1:4]
+cur = json.load(open(path)) if os.path.exists(path) else {}
+was = json.load(open(orig)) if os.path.exists(orig) else {}
+for key in ("theme", "appearance"):
+    if key in was:
+        cur[key] = was[key]
+    else:
+        cur.pop(key, None)
+if str(cur.get("theme", "")).startswith("onepiece-grandline"):
+    cur.pop("theme", None)  # its file is removed below
+open(tmp, "w").write(json.dumps(cur, indent=2) + "\n")
+PY
+  mv "$SETTINGS.tmp" "$SETTINGS"
   for name in $NAMES; do rm -f "$APP_HOME/themes/$name.json"; done
   for m in $MODS; do rm -rf "${APP_HOME:?}/mods/$m"; done
   rm -f "$APP_HOME/layouts/$LAYOUT.json" "$APP_HOME/layouts/.state/$LAYOUT.json"
   rm -f "$CORE_HOME"/templates/onepiece-*.md
-  echo "restored $SETTINGS from $last"
+  echo "restored theme/appearance in $SETTINGS${orig:+ from $orig}"
   echo "removed  $APP_HOME/themes/onepiece-grandline*.json"
   prev="$(python3 -c 'import json,sys;print(json.load(open(sys.argv[1])).get("theme",""))' "$SETTINGS")"
   if [ -n "$prev" ] && command -v herdr-app >/dev/null 2>&1; then
@@ -92,7 +109,23 @@ command -v "${CREW_AGENT:-opencode}" >/dev/null 2>&1 ||
 python3 - "$ROOT/crew-profiles.json" "$CORE_HOME/templates" "${CREW_AGENT:-opencode}" <<'PY'
 import json, os, sys
 src, outdir, command = sys.argv[1:4]
-for c in json.load(open(src))["crew"]:
+# Peer protocol: every crew member is its own Herdr agent (its own terminal,
+# addressed by name), not a subagent/session inside the caller's terminal. The
+# roster is baked in because `hc ls --json` omits `name` for live terminals.
+crew = json.load(open(src))["crew"]
+ids = [c["id"] for c in crew]
+for c in crew:
+    peers = ", ".join(i for i in ids if i != c["id"])
+    proto = (
+        "\n\n## Kru lain (agent Herdr terpisah)\n"
+        f"Tiap kru punya terminal dan nama sendiri di Herdr: {peers}.\n"
+        "Cek hidup: `hc get <nama>` (galat = tidak hidup).\n"
+        "Kerja sama, tanya, atau minta bantuan HANYA antar-agent Herdr:\n"
+        "`hc send <nama> \"<pesan>\"`; sertakan `$HC_TERMINAL_ID` kalau ingin dijawab.\n"
+        "Jangan memecah tugas ke subagent/task tool di terminalmu sendiri — itu sesi\n"
+        "dalam satu terminal, bukan kru lain. Lapor ke pemanggil sekali; jangan\n"
+        "membalas otomatis berulang.\n"
+    )
     name = "onepiece-" + c["id"]
     text = (
         "---\n"
@@ -101,7 +134,7 @@ for c in json.load(open(src))["crew"]:
         f"command: {command}\n"
         "---\n\n"
         + c["system_prompt"].rstrip()
-        + "\n"
+        + proto
     )
     path = os.path.join(outdir, name + ".md")
     if not (os.path.exists(path) and open(path).read() == text):
@@ -120,6 +153,14 @@ open(path, "w").write(json.dumps(d, indent=2) + "\n")
 PY
 fi
 
+# One backup, taken before the first write ever; later runs must not overwrite it.
+# Older installs left timestamped backups: the oldest one is the real original.
+# Seeded even when settings already match, so --uninstall always has a source.
+if [ -f "$SETTINGS" ] && [ ! -f "$SETTINGS.bak-onepiece-orig" ]; then
+  oldest="$(ls -1tr "$SETTINGS".bak-onepiece-2* 2>/dev/null | head -n1 || true)"
+  cp "${oldest:-$SETTINGS}" "$SETTINGS.bak-onepiece-orig"
+fi
+
 if python3 - "$SETTINGS" "$variant" "$SETTINGS.tmp" <<'PY'
 import json, os, sys
 path, name, tmp = sys.argv[1], sys.argv[2], sys.argv[3]
@@ -132,7 +173,6 @@ if os.path.exists(path) and open(path).read() == out:
 open(tmp, "w").write(out)
 PY
 then
-if [ -f "$SETTINGS" ]; then cp "$SETTINGS" "$SETTINGS.bak-onepiece-$(date +%Y%m%d-%H%M%S)"; fi
   mv "$SETTINGS.tmp" "$SETTINGS"
   echo "settings: theme = \"$variant\""
 else

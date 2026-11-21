@@ -5,8 +5,12 @@ import { View, div, image } from "gpui-kit";
 import { v_flex, h_flex, InputState, Input } from "gpui-base";
 import { agents, focused, hc, run, theme } from "herdr";
 
-const CAP = 40;
-const KEY = "onepiece.chat.log.v2";
+const CAP = 200;
+// Bumped when the log format or its contents need to start clean (v3: spinner
+// and TUI-footer bubbles purged from the stored history).
+const KEY = "onepiece.chat.log.v3";
+const LINES = 40; // read window: must exceed one wrapped long message
+const KEEP = 24; // sentences per agent remembered for dedupe
 
 const clock = (ms) => (ms ? new Date(ms).toTimeString().slice(0, 5) : "");
 
@@ -16,7 +20,7 @@ function loadLog() {
     if (!Array.isArray(raw)) return [];
     const out = [];
     for (const e of raw) {
-      if (!e || !e.a || !e.txt) continue;
+      if (!e || !e.a || !e.txt || SPINNER.test(e.txt) || CHROME.test(e.txt)) continue;
       const prev = out[out.length - 1];
       if (prev && prev.a === e.a && prev.txt === e.txt) continue;
       out.push(e);
@@ -29,7 +33,8 @@ function loadLog() {
 
 // ANSI, box drawing and TUI chrome all lie about being a sentence.
 const BOX = /[│┃┌┐└┘├┤┬┴┼─━╭╮╰╯▌▐█▰▱▔▁◼▮▕▏⏺⬤◻]/g;
-const CHROME = /esc\s|\d+(\.\d+)?K\b|↑|↓|\(\d+%\)|ctrl\+|⏎|\bauto\b|^[~/]|^(build|plan|thought|worked) ·|\(\d+ earlier lines?\)/i;
+const SPINNER = /[\u2800-\u28FF]/; // braille spinners: a repainted status line, not speech
+const CHROME = /esc\s|\d+(\.\d+)?K\b|↑|↓|\(\d+%\)|ctrl\+|⏎|\bauto\b|^[~/]|^(build|plan|thought|worked) ·|\(\d+ earlier lines?\)|\+\s*$/i;
 
 function saidLines(text) {
   return String(text)
@@ -37,11 +42,11 @@ function saidLines(text) {
     .split("\n")
     .map((l) => l.replace(BOX, " ").replace(/\s+/g, " ").trim())
     .filter((l) => {
-      if (l.length < 14 || CHROME.test(l)) return false;
+      if (l.length < 14 || CHROME.test(l) || SPINNER.test(l)) return false;
       const letters = (l.match(/\p{L}/gu) || []).length;
       return letters >= 12 && l.split(" ").length >= 3;
     })
-    .slice(-4);
+    .slice(-KEEP);
 }
 
 export default class OnepieceChat extends View {
@@ -54,7 +59,9 @@ export default class OnepieceChat extends View {
     this.seeded = false;
     this.busy = false;
     this.poll(cx);
-    cx.timer.every(5000, (cx) => this.poll(cx));
+    // 2s bounds how stale a bubble's clock is: a screen line has no timestamp of
+    // its own, so the stamp is when we first saw it.
+    cx.timer.every(2000, (cx) => this.poll(cx));
   }
 
   // Read each agent's screen and append the sentences we have not seen before.
@@ -66,7 +73,7 @@ export default class OnepieceChat extends View {
         const rows = [];
         for (const a of agents()) {
           try {
-            const r = await hc(["read", a.address, "--lines", "8", "--json"]);
+            const r = await hc(["read", a.address, "--lines", String(LINES), "--json"]);
             rows.push([a, saidLines(JSON.parse(r.stdout).text)]);
           } catch {
             rows.push([a, []]);
@@ -77,7 +84,7 @@ export default class OnepieceChat extends View {
         for (const [a, lines] of rows) {
           const known = this.seen[a.address] ?? [];
           const fresh = lines.filter((l) => !known.includes(l));
-          this.seen[a.address] = [...known, ...lines].slice(-12);
+          this.seen[a.address] = [...known, ...lines].slice(-KEEP);
           // First run opens with what each agent last said, so the panel is never blank.
           if (opening && lines.length > 0) {
             this.log.push({ a: a.address, n: a.title || a.program?.name || a.address, txt: lines[lines.length - 1], ts: Date.now() });
@@ -86,7 +93,7 @@ export default class OnepieceChat extends View {
           }
           if (!this.seeded || fresh.length === 0) continue;
           // Wrapped terminal lines are one sentence, so one bubble per agent per poll.
-          const txt = fresh.join(" ").slice(0, 240);
+          const txt = fresh.join(" ").slice(0, 600);
           const recent = this.log.filter((e) => e.a === a.address).slice(-3).map((e) => e.txt);
           if (recent.includes(txt)) continue;
           this.log.push({ a: a.address, n: a.title || a.program?.name || a.address, txt, ts: Date.now() });
