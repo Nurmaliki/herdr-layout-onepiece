@@ -15,11 +15,14 @@ case "$*" in *"</hc>"*) echo "tugas tidak boleh memuat </hc>" >&2; exit 2 ;; esa
 hc get "$kru" >/dev/null 2>&1 && { echo "nama $kru sudah dipakai: hc kill $kru && hc rm $kru dulu" >&2; exit 2; }
 tpl="${HERDR_CORE_HOME:-$HOME/.config/herdr-core}/templates/onepiece-$kru.md"
 [ -f "$tpl" ] || { echo "template tidak ada: $tpl (jalankan ./install-theme.sh)" >&2; exit 1; }
+# Kru kerja di repo mana pun: CREW_CWD=/path/to/project ./crew.sh nami "..."
+cwd=${CREW_CWD:-$PWD}
+[ -d "$cwd" ] || { echo "CREW_CWD bukan folder: $cwd" >&2; exit 2; }
 # Tanpa HC_TERMINAL_ID jangan menebak nama pemanggil: kirim tanpa alamat balasan.
 caller=${HC_TERMINAL_ID:-}
 reach=${caller:+ reach=\"hc send $caller when done or stuck\"}
 
-hc run --bg --name "$kru" opencode >/dev/null 2>&1 &
+hc run --bg --name "$kru" --cwd "$cwd" opencode >/dev/null 2>&1 &
 body=$(awk '/^---$/{n++; next} n>=2' "$tpl")
 msg="<hc from=\"${caller:-user}\"$reach>$body
 $*</hc>"
