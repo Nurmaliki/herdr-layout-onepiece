@@ -119,6 +119,12 @@ Balik ke layout lama: `herdr-app do layout.switch --name dev-layout`.
   onepiece-<kru> "…"` sering berakhir `{"sent":false}` (pane belum "settled"), dan
   `hc send` polos ke agen yang sudah jalan **membuang personanya** — jadi jangan dipakai
   untuk tugas pertama.
+- Direktori kerja kru: beri `CREW_CWD=/path/to/project ./crew.sh <kru> "…"` (default
+  `$PWD`). Kalau kru itu masih hidup di folder lain, `crew.sh` mematikannya dan
+  menyalakan ulang di folder target — mengirim ulang saja ke agen yang sudah jalan
+  membuang personanya. `CREW_KEEP=1` untuk menghentikan pindah-pindah itu. Pesan
+  pertama tiap kru selalu memuat baris `Proyek: kerja di <folder>`, dan template
+  berisi bagian "Direktori kerja" supaya kru tidak menganalisis repo lain.
 - Kru berkomunikasi sebagai **agent Herdr**, bukan sesi di terminal yang sama: tiap kru =
   terminal + nama sendiri (alamat `hc send <nama>`), dan templatenya melarang memecah tugas
   ke subagent/task tool dalam terminal kru itu. Roster dicetak statis di template karena

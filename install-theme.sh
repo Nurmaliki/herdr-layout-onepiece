@@ -117,7 +117,10 @@ ids = [c["id"] for c in crew]
 for c in crew:
     peers = ", ".join(i for i in ids if i != c["id"])
     proto = (
-        "\n\n## Kru lain (agent Herdr terpisah)\n"
+        "\n\n## Direktori kerja\n"
+        "Kerja di direktori tempat terminalmu hidup (cek `pwd`) atau folder yang\n"
+        "disebut pesan pertamamu. Jangan menganalisis repo lain tanpa diminta.\n"
+        "\n## Kru lain (agent Herdr terpisah)\n"
         f"Tiap kru punya terminal dan nama sendiri di Herdr: {peers}.\n"
         "Cek hidup: `hc get <nama>` (galat = tidak hidup).\n"
         "Kerja sama, tanya, atau minta bantuan HANYA antar-agent Herdr:\n"
